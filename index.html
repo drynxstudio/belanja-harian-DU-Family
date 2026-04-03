@@ -3,376 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Rekap Logistik & Finansial</title>
+    <title>Rekap Belanja Keluarga</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #f4f7f6; --text-color: #1e293b; --card-bg: #ffffff;
-            --border-color: #e2e8f0; --primary: #0f172a; --accent: #2563eb;
-            --success: #10b981; --danger: #ef4444; --input-bg: #ffffff;
+            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --sub: #64748b;
+            --primary: #6366f1; --border: #e2e8f0; --danger: #ef4444; --success: #22c55e;
         }
-        [data-theme="dark"] {
-            --bg-color: #0f172a; --text-color: #f1f5f9; --card-bg: #1e293b;
-            --border-color: #334155; --primary: #f8fafc; --accent: #3b82f6;
-            --input-bg: #0f172a;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        .container { max-width: 1000px; margin: 0 auto; }
         
-        body { font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; transition: 0.3s; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        /* UI Baru yang Lebih Keren */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #6366f1, #a855f7); padding: 25px; border-radius: 20px; color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+        .header h2 { margin: 0; font-size: 22px; }
         
-        /* Layouts */
-        .header { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; }
-        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); }
-        .card h3 { font-size: 13px; color: #64748b; text-transform: uppercase; margin: 0 0 10px 0; }
-        .card .value { font-size: 24px; font-weight: 700; color: var(--accent); }
-        
-        /* Controls & Inputs */
-        .controls-bar { display: flex; gap: 15px; flex-wrap: wrap; background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; align-items: center; }
-        .search-box { flex-grow: 1; position: relative; min-width: 200px; }
-        .search-box i { position: absolute; left: 15px; top: 12px; color: #94a3b8; }
-        .search-box input { width: 100%; padding: 10px 10px 10px 40px; }
-        
-        select, input { background: var(--input-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 15px; border-radius: 8px; font-family: 'Inter', sans-serif; outline: none; box-sizing: border-box; }
-        select:focus, input:focus { border-color: var(--accent); }
-        
-        button { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: 'Inter'; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-dark { background: var(--primary); color: var(--bg-color); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        
-        /* Table */
-        .table-wrap { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 15px; border-bottom: 1px solid var(--border-color); }
-        th { font-weight: 600; background: rgba(0,0,0,0.02); }
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #e0f2fe; color: #0284c7; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .stat-card span { font-size: 12px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
+        .stat-card div { font-size: 20px; font-weight: 700; margin-top: 5px; color: var(--primary); }
 
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(4px); }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 16px; position: relative; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
-        .form-group input, .form-group select { width: 100%; }
-        .close-btn { position: absolute; right: 20px; top: 20px; cursor: pointer; font-size: 20px; color: #94a3b8; }
+        /* Search & Filter */
+        .search-area { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-box { flex: 1; position: relative; min-width: 250px; }
+        .search-box i { position: absolute; left: 15px; top: 12px; color: var(--sub); }
+        .search-box input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-family: inherit; transition: 0.2s; }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         
-        #loader { text-align: center; padding: 20px; display: none; font-weight: 600; color: var(--accent); }
+        select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; outline: none; cursor: pointer; }
+
+        /* Button & Table */
+        button { padding: 10px 18px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-add { background: white; color: var(--primary); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-export { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        
+        .table-wrap { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 13px; color: var(--sub); border-bottom: 1px solid var(--border); }
+        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        tr:last-child td { border: none; }
+        .cat-tag { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #eef2ff; color: #4338ca; }
+
+        /* Modal Pop-up */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; }
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; box-sizing: border-box; }
+        
+        #loader { display: none; text-align: center; padding: 10px; color: var(--primary); font-weight: 700; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2 style="margin:0;"><i class="fas fa-boxes"></i> Rekap Keuangan & Logistik</h2>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn-dark" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-            <button class="btn-primary" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Baru</button>
+        <div>
+            <h2><i class="fas fa-home"></i> Belanja Keluarga</h2>
+            <div id="loader"><i class="fas fa-sync fa-spin"></i> Sinkronisasi...</div>
         </div>
+        <button class="btn-add" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Belanja</button>
     </div>
 
-    <div class="grid-cards">
-        <div class="card"><h3>Total Hari Ini</h3><div class="value" id="valHari">Rp 0</div></div>
-        <div class="card"><h3>Total Minggu Ini</h3><div class="value" id="valMinggu">Rp 0</div></div>
-        <div class="card"><h3>Total Bulan Ini</h3><div class="value" id="valBulan">Rp 0</div></div>
-        <div class="card"><h3>Total Tahun Ini</h3><div class="value" id="valTahun">Rp 0</div></div>
+    <div class="stats-grid">
+        <div class="stat-card"><span>Hari Ini</span><div id="vHari">Rp 0</div></div>
+        <div class="stat-card"><span>Minggu Ini</span><div id="vMinggu">Rp 0</div></div>
+        <div class="stat-card"><span>Bulan Ini</span><div id="vBulan">Rp 0</div></div>
+        <div class="stat-card"><span>Tahun Ini</span><div id="vTahun">Rp 0</div></div>
     </div>
 
-    <div class="controls-bar">
+    <div class="search-area">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Cari nama barang atau kategori..." onkeyup="applyFilter()">
+            <input type="text" id="mainSearch" placeholder="Cari nama barang, kategori, hari, atau bulan..." onkeyup="applyFilter()">
         </div>
-        <select id="filterBulan" onchange="applyFilter()">
-            <option value="semua">Semua Bulan</option>
-            <option value="0">Januari</option>
-            <option value="1">Februari</option>
-            <option value="2">Maret</option>
-            <option value="3">April</option>
-            <option value="4">Mei</option>
-            <option value="5">Juni</option>
-            <option value="6">Juli</option>
-            <option value="7">Agustus</option>
-            <option value="8">September</option>
-            <option value="9">Oktober</option>
-            <option value="10">November</option>
-            <option value="11">Desember</option>
-        </select>
-        <select id="filterTahun" onchange="applyFilter()">
-            <option value="semua">Semua Tahun</option>
-            </select>
-        <button class="btn-success" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
-        <button class="btn-danger" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+        <select id="selTahun" onchange="applyFilter()"><option value="semua">Semua Tahun</option></select>
+        <button class="btn-export" onclick="exportExcel()"><i class="fas fa-file-excel"></i></button>
+        <button class="btn-export" onclick="exportPDF()"><i class="fas fa-file-pdf"></i></button>
     </div>
 
-    <div id="loader"><i class="fas fa-spinner fa-spin"></i> Mensinkronisasi data...</div>
-
     <div class="table-wrap">
-        <table id="dataTable">
+        <table>
             <thead>
                 <tr>
-                    <th>Tanggal & Hari</th>
-                    <th>Nama Belanjaan</th>
+                    <th>Waktu</th>
+                    <th>Nama Barang</th>
                     <th>Kategori</th>
-                    <th>Total Biaya</th>
-                    <th style="text-align:center;">Aksi</th>
+                    <th>Harga</th>
+                    <th style="text-align:center">Aksi</th>
                 </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="tBody"></tbody>
         </table>
     </div>
 </div>
 
 <div class="modal" id="formModal">
     <div class="modal-content">
-        <i class="fas fa-times close-btn" onclick="closeModal('formModal')"></i>
-        <h3 id="modalTitle" style="margin-top:0;">Catat Pengeluaran Baru</h3>
-        <form id="rekapForm">
-            <input type="hidden" id="formId">
+        <h3 id="mTitle">Catat Pengeluaran</h3>
+        <form id="rForm">
+            <input type="hidden" id="fId">
             <div class="form-group">
-                <label>Tanggal Pembelian</label>
-                <input type="date" id="tanggal" required>
+                <label>Tanggal</label>
+                <input type="date" id="fTgl" required>
             </div>
             <div class="form-group">
-                <label>Kategori</label>
-                <select id="kategori" required>
-                    <option value="Bahan Bangunan">Bahan Bangunan</option>
-                    <option value="Logistik & Ekspedisi">Logistik & Ekspedisi</option>
-                    <option value="Operasional Proyek">Operasional Proyek</option>
-                    <option value="Konsumsi">Konsumsi</option>
-                    <option value="Alat Berat / Sewa">Alat Berat / Sewa</option>
-                    <option value="Lainnya">Lainnya</option>
+                <label>Kategori Keluarga</label>
+                <select id="fKat" required>
+                    <option value="Dapur & Sembako">Dapur & Sembako</option>
+                    <option value="Kebutuhan Anak">Kebutuhan Anak</option>
+                    <option value="Tagihan (Listrik/Air/Wifi)">Tagihan (Listrik/Air/Wifi)</option>
+                    <option value="Kesehatan & Skincare">Kesehatan & Skincare</option>
+                    <option value="Transportasi & BBM">Transportasi & BBM</option>
+                    <option value="Hiburan & Jajan">Hiburan & Jajan</option>
+                    <option value="Lain-lain">Lain-lain</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Rincian Barang</label>
-                <input type="text" id="namaBarang" placeholder="Contoh: Semen 50 Sak, Sewa Pick-up..." required>
+                <label>Nama Barang</label>
+                <input type="text" id="fNama" placeholder="Misal: Susu Anak, Token Listrik..." required>
             </div>
             <div class="form-group">
-                <label>Nominal Harga (Rp)</label>
-                <input type="text" id="jumlah" placeholder="150.000" onkeyup="formatRibuan(this)" required>
+                <label>Harga (Rp)</label>
+                <input type="text" id="fHarga" placeholder="10.000" onkeyup="formatRpInput(this)" required>
             </div>
-            <button type="submit" class="btn-primary" id="btnSubmit" style="width: 100%">Simpan Transaksi</button>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="button" onclick="closeModal('formModal')" style="flex:1; background:#f1f5f9">Batal</button>
+                <button type="submit" class="btn-primary" id="fBtn" style="flex:2">Simpan Data</button>
+            </div>
         </form>
     </div>
 </div>
 
 <script>
-    // --- GANTI DENGAN URL APPS SCRIPT BARU ANDA ---
+    // MASUKKAN URL ANDA DI SINI. JANGAN HAPUS TANDA PETIKNYA.
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUeLobYK_QILBRm612kgx9N9IVPPBfKgnVtem0hrEV3MPWMo6iXreewqZIkXlHApKA/exec'; 
-    
-    let globalData = [];
-    document.getElementById('tanggal').valueAsDate = new Date();
 
-    // Tema Gelap/Terang
-    function toggleTheme() {
-        const body = document.body;
-        body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+    let db = [];
+    document.getElementById('fTgl').valueAsDate = new Date();
+
+    function formatRpInput(obj) {
+        let v = obj.value.replace(/[^,\d]/g, '').toString();
+        let sisa = v.length % 3;
+        let r = v.substr(0, sisa);
+        let ribuan = v.substr(sisa).match(/\d{3}/gi);
+        if (ribuan) r += (sisa ? '.' : '') + ribuan.join('.');
+        obj.value = r;
     }
 
-    // Format Ribuan Real-time
-    function formatRibuan(obj) {
-        let val = obj.value.replace(/[^,\d]/g, '').toString();
-        let split = val.split(',');
-        let sisa = split[0].length % 3;
-        let rupiah = split[0].substr(0, sisa);
-        let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-        if (ribuan) rupiah += (sisa ? '.' : '') + ribuan.join('.');
-        obj.value = rupiah;
-    }
-    const cleanRupiah = (str) => parseInt(str.replace(/\./g, ''));
-    const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+    const toRp = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
+    const cleanN = (s) => parseInt(s.replace(/\./g, ''));
 
-    // Modal Control
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { 
         document.getElementById(id).classList.remove('active');
-        document.getElementById('rekapForm').reset();
-        document.getElementById('formId').value = "";
-        document.getElementById('modalTitle').innerText = "Catat Pengeluaran Baru";
-        document.getElementById('tanggal').valueAsDate = new Date();
+        document.getElementById('rForm').reset();
+        document.getElementById('fId').value = "";
+        document.getElementById('fTgl').valueAsDate = new Date();
     }
 
-    // Ambil Data
-    async function loadData() {
+    async function load() {
         document.getElementById('loader').style.display = 'block';
         try {
-            const res = await fetch(APPS_SCRIPT_URL);
-            globalData = await res.json();
-            populateYears();
+            const r = await fetch(APPS_SCRIPT_URL);
+            db = await r.json();
+            
+            // Isi dropdown tahun
+            const thnSel = document.getElementById('selTahun');
+            const thns = [...new Set(db.map(x => new Date(x.tanggal).getFullYear()))].sort((a,b)=>b-a);
+            thnSel.innerHTML = '<option value="semua">Semua Tahun</option>';
+            thns.forEach(t => { if(!isNaN(t)) thnSel.innerHTML += `<option value="${t}">${t}</option>` });
+            
             applyFilter();
-        } catch (error) { console.error("Error loading data", error); }
+        } catch (e) { console.error(e); }
         document.getElementById('loader').style.display = 'none';
     }
 
-    // Mengisi Dropdown Tahun otomatis berdasarkan data yang ada
-    function populateYears() {
-        const yearSelect = document.getElementById('filterTahun');
-        const years = [...new Set(globalData.map(item => new Date(item.tanggal).getFullYear()))];
-        yearSelect.innerHTML = '<option value="semua">Semua Tahun</option>';
-        years.sort((a,b) => b-a).forEach(year => {
-            if(!isNaN(year)) yearSelect.innerHTML += `<option value="${year}">${year}</option>`;
-        });
-    }
-
-    // Filter Engine Utama (Search, Bulan, Tahun)
     function applyFilter() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const selBulan = document.getElementById('filterBulan').value;
-        const selTahun = document.getElementById('filterTahun').value;
-
-        let filtered = [...globalData].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-        filtered = filtered.filter(row => {
-            const d = new Date(row.tanggal);
-            const matchSearch = row.nama.toLowerCase().includes(searchTerm) || (row.kategori && row.kategori.toLowerCase().includes(searchTerm));
-            const matchBulan = selBulan === 'semua' || d.getMonth() == selBulan;
-            const matchTahun = selTahun === 'semua' || d.getFullYear() == selTahun;
-            
-            return matchSearch && matchBulan && matchTahun;
-        });
-
-        renderTable(filtered);
-        calculateDashboard(filtered);
-    }
-
-    // Render Tabel dengan Nama Hari Lengkap
-    function renderTable(data) {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        
-        data.forEach(row => {
-            const d = new Date(row.tanggal);
-            const namaHari = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d);
-            const tglLengkap = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
-            
-            tbody.innerHTML += `
-                <tr>
-                    <td><strong>${namaHari}</strong><br><span style="font-size:12px; color:#64748b;">${tglLengkap}</span></td>
-                    <td>${row.nama}</td>
-                    <td><span class="badge">${row.kategori || 'Lainnya'}</span></td>
-                    <td style="font-weight:600; color:var(--accent)">${formatRp(row.jumlah)}</td>
-                    <td style="text-align:center;">
-                        <button class="btn-primary" style="padding: 6px 10px" onclick="editData('${row.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-danger" style="padding: 6px 10px" onclick="deleteData('${row.id}')"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>`;
-        });
-    }
-
-    // Kalkulasi Dashboard Berdasarkan Data yang Di-filter
-    function getWeek(d) {
-        let date = new Date(d.getTime());
-        date.setHours(0, 0, 0, 0);
-        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-        let week1 = new Date(date.getFullYear(), 0, 4);
-        return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-    }
-
-    function calculateDashboard(data) {
+        const key = document.getElementById('mainSearch').value.toLowerCase();
+        const thn = document.getElementById('selTahun').value;
         const now = new Date();
-        const currWeek = getWeek(now);
-        let dHari = 0, dMinggu = 0, dBulan = 0, dTahun = 0;
 
+        let res = db.filter(row => {
+            const d = new Date(row.tanggal);
+            const namaHari = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d).toLowerCase();
+            const namaBulan = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(d).toLowerCase();
+            
+            const mKey = row.nama.toLowerCase().includes(key) || 
+                         row.kategori.toLowerCase().includes(key) ||
+                         namaHari.includes(key) ||
+                         namaBulan.includes(key);
+            const mThn = thn === 'semua' || d.getFullYear() == thn;
+            return mKey && mThn;
+        }).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        render(res);
+        calc(res);
+    }
+
+    function render(data) {
+        const b = document.getElementById('tBody');
+        b.innerHTML = '';
         data.forEach(r => {
             const d = new Date(r.tanggal);
-            const amt = Number(r.jumlah);
-            
-            if(d.getFullYear() === now.getFullYear()) {
-                dTahun += amt;
-                if(d.getMonth() === now.getMonth()) dBulan += amt;
-                if(getWeek(d) === currWeek) dMinggu += amt;
-                if(d.toDateString() === now.toDateString()) dHari += amt;
-            }
+            const hari = new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }).format(d);
+            b.innerHTML += `<tr>
+                <td><strong>${hari}</strong></td>
+                <td>${r.nama}</td>
+                <td><span class="cat-tag">${r.kategori}</span></td>
+                <td style="font-weight:700">${toRp(r.jumlah)}</td>
+                <td style="text-align:center">
+                    <button style="padding:5px 8px; background:#eef2ff; color:#4338ca" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
+                    <button style="padding:5px 8px; background:#fef2f2; color:#ef4444" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
         });
-
-        document.getElementById('valHari').innerText = formatRp(dHari);
-        document.getElementById('valMinggu').innerText = formatRp(dMinggu);
-        document.getElementById('valBulan').innerText = formatRp(dBulan);
-        document.getElementById('valTahun').innerText = formatRp(dTahun);
     }
 
-    // Submit (Simpan / Edit)
-    document.getElementById('rekapForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btnSubmit');
-        btn.innerText = "Memproses..."; btn.disabled = true;
+    function calc(data) {
+        const n = new Date();
+        let h = 0, m = 0, b = 0, t = 0;
+        const startWeek = new Date(n.setDate(n.getDate() - n.getDay())); // Minggu ini
+        
+        data.forEach(r => {
+            const d = new Date(r.tanggal);
+            const v = Number(r.jumlah);
+            if(d.getFullYear() === new Date().getFullYear()) {
+                t += v;
+                if(d.getMonth() === new Date().getMonth()) b += v;
+                if(d >= startWeek) m += v;
+                if(d.toDateString() === new Date().toDateString()) h += v;
+            }
+        });
+        document.getElementById('vHari').innerText = toRp(h);
+        document.getElementById('vMinggu').innerText = toRp(m);
+        document.getElementById('vBulan').innerText = toRp(b);
+        document.getElementById('vTahun').innerText = toRp(t);
+    }
 
-        const formId = document.getElementById('formId').value;
+    document.getElementById('rForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('fBtn');
+        btn.disabled = true; btn.innerText = "Menyimpan...";
+        
+        const id = document.getElementById('fId').value;
         const payload = {
-            action: formId ? 'edit' : 'add',
-            id: formId || Date.now().toString(), // Generate Unique ID
-            tanggal: document.getElementById('tanggal').value,
-            kategori: document.getElementById('kategori').value,
-            nama: document.getElementById('namaBarang').value,
-            jumlah: cleanRupiah(document.getElementById('jumlah').value)
+            action: id ? 'edit' : 'add',
+            id: id || Date.now().toString(),
+            tanggal: document.getElementById('fTgl').value,
+            nama: document.getElementById('fNama').value,
+            kategori: document.getElementById('fKat').value,
+            jumlah: cleanN(document.getElementById('fHarga').value)
         };
 
-        // Menggunakan mode 'follow' redirect agar data lolos di Apps Script
         await fetch(APPS_SCRIPT_URL, {
             redirect: "follow",
             method: 'POST',
             body: JSON.stringify(payload),
             headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
-
+        
         closeModal('formModal');
-        btn.innerText = "Simpan Transaksi"; btn.disabled = false;
-        loadData(); 
+        btn.disabled = false; btn.innerText = "Simpan Data";
+        load();
     });
 
-    // Panggil Edit
-    function editData(id) {
-        const row = globalData.find(r => r.id == id);
-        if(row) {
-            document.getElementById('formId').value = row.id;
-            document.getElementById('tanggal').value = new Date(row.tanggal).toISOString().split('T')[0];
-            document.getElementById('kategori').value = row.kategori;
-            document.getElementById('namaBarang').value = row.nama;
-            document.getElementById('jumlah').value = row.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            document.getElementById('modalTitle').innerText = "Edit Pengeluaran";
+    function edit(id) {
+        const r = db.find(x => x.id == id);
+        if(r) {
+            document.getElementById('fId').value = r.id;
+            document.getElementById('fTgl').value = new Date(r.tanggal).toISOString().split('T')[0];
+            document.getElementById('fNama').value = r.nama;
+            document.getElementById('fKat').value = r.kategori;
+            document.getElementById('fHarga').value = r.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            document.getElementById('mTitle').innerText = "Edit Belanjaan";
             openModal('formModal');
         }
     }
 
-    // Eksekusi Hapus
-    async function deleteData(id) {
-        if(confirm("Hapus baris data ini secara permanen?")) {
+    async function del(id) {
+        if(confirm("Hapus data ini?")) {
             document.getElementById('loader').style.display = 'block';
             await fetch(APPS_SCRIPT_URL, {
                 redirect: "follow",
                 method: 'POST',
-                body: JSON.stringify({ action: 'delete', id: id }),
+                body: JSON.stringify({action:'delete', id: id}),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
-            loadData();
+            load();
         }
     }
 
-    // Ekspor (Sesuai Filter yang aktif)
     function exportExcel() {
-        const table = document.getElementById("dataTable");
-        const wb = XLSX.utils.table_to_book(table, {sheet: "Laporan"});
-        XLSX.writeFile(wb, "Laporan_Logistik.xlsx");
+        const wb = XLSX.utils.table_to_book(document.querySelector("table"));
+        XLSX.writeFile(wb, "Belanja_Keluarga.xlsx");
     }
 
     function exportPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        doc.text("Laporan Pengeluaran Logistik", 14, 15);
-        doc.autoTable({ html: '#dataTable', startY: 20 });
-        doc.save("Laporan_Logistik.pdf");
+        doc.text("Rekap Belanja Keluarga", 14, 15);
+        doc.autoTable({ html: 'table', startY: 22 });
+        doc.save("Belanja_Keluarga.pdf");
     }
 
-    // Jalankan pertama kali
-    window.onload = loadData;
+    window.onload = load;
 </script>
 </body>
 </html>
