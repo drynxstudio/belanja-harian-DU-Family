@@ -3,77 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rekap Belanja Keluarga</title>
+    <title>Dashboard Keuangan Keluarga</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --sub: #64748b;
-            --primary: #6366f1; --border: #e2e8f0; --danger: #ef4444; --success: #22c55e;
-            --input-bg: #ffffff;
+            --bg: #f1f5f9; --card: #ffffff; --text: #0f172a; --sub: #64748b;
+            --primary: #4f46e5; --secondary: #818cf8; --border: #e2e8f0; 
+            --danger: #ef4444; --success: #10b981; --warning: #f59e0b; --info: #0ea5e9;
+            --input-bg: #f8fafc;
         }
         [data-theme="dark"] {
-            --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --sub: #94a3b8;
+            --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --sub: #94a3b8;
             --border: #334155; --input-bg: #0f172a;
         }
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; }
-        .container { max-width: 1100px; margin: 0 auto; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; }
+        .container { max-width: 1200px; margin: 0 auto; }
         
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #6366f1, #a855f7); padding: 25px; border-radius: 20px; color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); flex-wrap: wrap; gap: 15px; }
-        .header h2 { margin: 0; font-size: 22px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, var(--primary), #9333ea); padding: 25px 30px; border-radius: 20px; color: white; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4); flex-wrap: wrap; gap: 15px; }
+        .header h2 { margin: 0; font-size: 24px; font-weight: 800; }
         
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .stat-card span { font-size: 12px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
-        .stat-card div.value { font-size: 22px; font-weight: 700; margin-top: 5px; color: var(--primary); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
+        .stat-card span { font-size: 13px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
+        .stat-card div.value { font-size: 24px; font-weight: 800; margin-top: 8px; color: var(--text); }
         
-        /* Badges Hemat/Boros */
-        .badge-status { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-top: 8px; }
-        .hemat { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        /* Fitur Baru: Budget Bar */
+        .budget-container { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .budget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .budget-title { font-weight: 700; font-size: 14px; color: var(--text); }
+        .budget-edit { cursor: pointer; color: var(--primary); font-size: 13px; font-weight: 600; text-decoration: underline; }
+        .progress-bg { background: var(--border); height: 12px; border-radius: 10px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; width: 0%; transition: width 0.5s ease, background-color 0.5s ease; }
+        .budget-labels { display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px; color: var(--sub); font-weight: 600;}
+
+        .badge-status { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 10px; }
+        .hemat { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .boros { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        /* Search & Filter */
-        .search-area { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-        .search-box { flex: 1; position: relative; min-width: 200px; }
+        /* Quick Filters & Controls */
+        .quick-filters { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .chip { padding: 8px 16px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; }
+        .chip:hover, .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .controls { background: var(--card); padding: 15px 20px; border-radius: 16px; border: 1px solid var(--border); display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);}
+        .search-box { flex: 1; position: relative; min-width: 250px; }
         .search-box i { position: absolute; left: 15px; top: 12px; color: var(--sub); }
-        .search-box input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-family: inherit; background: var(--input-bg); color: var(--text); box-sizing: border-box;}
-        
-        select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; outline: none; cursor: pointer; background: var(--input-bg); color: var(--text); }
+        .search-box input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--input-bg); color: var(--text); box-sizing: border-box; font-weight: 500;}
+        select { padding: 10px 15px; border-radius: 10px; border: 1px solid var(--border); font-weight: 600; outline: none; cursor: pointer; background: var(--input-bg); color: var(--text); }
 
         /* Buttons */
-        button { padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-add { background: white; color: var(--primary); }
-        .btn-chart { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); }
-        .btn-chart:hover { background: rgba(255,255,255,0.3); }
+        button { padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-light { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-export { background: transparent; color: var(--text); border: 1px solid var(--border); }
         
-        /* Table */
+        /* Table (Fitur Baru: Sortable) */
         .table-wrap { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { background: rgba(0,0,0,0.02); padding: 15px; text-align: left; font-size: 13px; color: var(--sub); border-bottom: 1px solid var(--border); }
-        td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        .cat-tag { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #eef2ff; color: #4338ca; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { background: rgba(0,0,0,0.02); padding: 16px 20px; text-align: left; font-size: 13px; color: var(--sub); border-bottom: 1px solid var(--border); font-weight: 700; text-transform: uppercase; cursor: pointer; user-select: none; transition: 0.2s;}
+        th:hover { background: rgba(0,0,0,0.05); color: var(--primary); }
+        td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 500;}
+        tr:hover { background: rgba(0,0,0,0.01); }
+        .cat-tag { padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); }
 
         /* Modals */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-        .modal.active { display: flex; animation: fadeIn 0.2s; }
-        @keyframes fadeIn { from {opacity:0; transform:scale(0.95)} to {opacity:1; transform:scale(1)} }
-        .modal-content { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; max-height: 90vh; overflow-y: auto;}
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal.active { display: flex; animation: zoomIn 0.2s; }
+        @keyframes zoomIn { from {opacity:0; transform:scale(0.95)} to {opacity:1; transform:scale(1)} }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; max-height: 90vh; overflow-y: auto; }
         
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; background: var(--input-bg); color: var(--text); outline:none; font-family: inherit;}
+        #chartModal .modal-content { max-width: 1000px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+        .chart-box { background: var(--input-bg); border: 1px solid var(--border); border-radius: 16px; padding: 15px; }
+        .smart-insight { background: rgba(79, 70, 229, 0.1); border-left: 4px solid var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; line-height: 1.5; }
         
-        #loader { display: none; text-align: center; padding: 10px; color: var(--primary); font-weight: 700; font-size: 13px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--sub);}
+        .form-group input, .form-group select { width: 100%; padding: 12px 15px; border: 2px solid var(--border); border-radius: 12px; box-sizing: border-box; background: var(--input-bg); color: var(--text); outline:none; font-family: inherit;}
+        #loader { display: none; text-align: center; padding: 10px; color: var(--card); font-weight: 700; font-size: 14px; }
+        
+        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -81,66 +99,87 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2><i class="fas fa-home"></i> Keuangan Keluarga</h2>
-            <div id="loader"><i class="fas fa-sync fa-spin"></i> Sinkronisasi...</div>
+            <h2><i class="fas fa-wallet" style="color: #fca5a5;"></i> Finansial Keluarga</h2>
+            <div style="margin-top: 5px; font-size: 14px; opacity: 0.9;">Pantau arus kas keluarga dengan cerdas.</div>
         </div>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-chart" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
-            <button class="btn-chart" onclick="openModal('chartModal')"><i class="fas fa-chart-pie"></i> Analitik</button>
-            <button class="btn-add" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Belanja</button>
+        <div style="display:flex; gap:10px; align-items: center;">
+            <div id="loader"><i class="fas fa-sync fa-spin"></i> Mensinkronisasi...</div>
+            <button class="btn-light" onclick="toggleTheme()" title="Mode Gelap/Terang"><i class="fas fa-moon"></i></button>
+            <button class="btn-light" onclick="shareToWA()" title="Kirim Ringkasan ke WA"><i class="fab fa-whatsapp"></i> Share</button>
+            <button class="btn-light" onclick="openModal('chartModal')"><i class="fas fa-chart-line"></i> Analitik</button>
+            <button class="btn-light" style="background: white; color: var(--primary);" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Baru</button>
+        </div>
+    </div>
+
+    <div class="budget-container">
+        <div class="budget-header">
+            <div class="budget-title"><i class="fas fa-bullseye" style="color: var(--primary);"></i> Target Anggaran Bulan Ini</div>
+            <div class="budget-edit" onclick="setBudget()"><i class="fas fa-edit"></i> Atur Budget</div>
+        </div>
+        <div class="progress-bg">
+            <div class="progress-fill" id="budgetFill"></div>
+        </div>
+        <div class="budget-labels">
+            <span id="lblTerpakai">Terpakai: Rp 0</span>
+            <span id="lblSisa" style="font-weight: 700;">Sisa: Rp 0</span>
         </div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <span>Hari Ini</span>
-            <div class="value" id="vHari">Rp 0</div>
-            <div class="badge-status" style="background:#e0f2fe; color:#0284c7;">Total Pengeluaran Harian</div>
+            <span>Total Hari Ini</span><div class="value" id="vHari">Rp 0</div>
+            <div class="badge-status" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-calendar-day"></i> Hari Ini</div>
         </div>
         <div class="stat-card">
-            <span>Minggu Ini</span>
-            <div class="value" id="vMinggu">Rp 0</div>
-            <div id="badgeMinggu" class="badge-status hemat"><i class="fas fa-minus"></i> Memuat...</div>
+            <span>Total Minggu Ini</span><div class="value" id="vMinggu">Rp 0</div>
+            <div id="badgeMinggu" class="badge-status hemat"><i class="fas fa-minus"></i> Kalkulasi...</div>
         </div>
         <div class="stat-card">
-            <span>Bulan Ini</span>
-            <div class="value" id="vBulan">Rp 0</div>
-            <div id="badgeBulan" class="badge-status hemat"><i class="fas fa-minus"></i> Memuat...</div>
+            <span>Total Bulan Ini</span><div class="value" id="vBulan">Rp 0</div>
+            <div id="badgeBulan" class="badge-status hemat"><i class="fas fa-minus"></i> Kalkulasi...</div>
         </div>
         <div class="stat-card">
-            <span>Tahun Ini</span>
-            <div class="value" id="vTahun">Rp 0</div>
+            <span>Total Tahun Ini</span><div class="value" id="vTahun">Rp 0</div>
+            <div class="badge-status" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">Akumulasi Tahunan</div>
         </div>
     </div>
 
-    <div class="search-area">
+    <div class="quick-filters">
+        <div class="chip active" onclick="setQuickFilter(this, '')">Semua Riwayat</div>
+        <div class="chip" onclick="setQuickFilter(this, 'Dapur')"><i class="fas fa-utensils"></i> Dapur</div>
+        <div class="chip" onclick="setQuickFilter(this, 'Anak')"><i class="fas fa-baby"></i> Kebutuhan Anak</div>
+        <div class="chip" onclick="setQuickFilter(this, 'Tagihan')"><i class="fas fa-bolt"></i> Tagihan Listrik/Air</div>
+    </div>
+
+    <div class="controls">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="mainSearch" placeholder="Cari barang, kategori, bulan, hari..." onkeyup="applyFilter()">
+            <input type="text" id="mainSearch" placeholder="Cari nama barang, kategori, hari..." onkeyup="applyFilter()">
         </div>
         <select id="selBulan" onchange="applyFilter()">
             <option value="semua">Semua Bulan</option>
-            <option value="0">Januari</option><option value="1">Februari</option>
-            <option value="2">Maret</option><option value="3">April</option>
-            <option value="4">Mei</option><option value="5">Juni</option>
-            <option value="6">Juli</option><option value="7">Agustus</option>
-            <option value="8">September</option><option value="9">Oktober</option>
-            <option value="10">November</option><option value="11">Desember</option>
+            <option value="0">Januari</option><option value="1">Februari</option><option value="2">Maret</option>
+            <option value="3">April</option><option value="4">Mei</option><option value="5">Juni</option>
+            <option value="6">Juli</option><option value="7">Agustus</option><option value="8">September</option>
+            <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
         </select>
         <select id="selTahun" onchange="applyFilter()"><option value="semua">Semua Tahun</option></select>
-        <button class="btn-export" onclick="exportExcel()"><i class="fas fa-file-excel" style="color:#10b981"></i></button>
-        <button class="btn-export" onclick="exportPDF()"><i class="fas fa-file-pdf" style="color:#ef4444"></i></button>
+        
+        <div style="display:flex; gap:5px; margin-left:auto;">
+            <button style="background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success);" onclick="exportExcel()"><i class="fas fa-file-excel"></i></button>
+            <button style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);" onclick="exportPDF()"><i class="fas fa-file-pdf"></i></button>
+        </div>
     </div>
 
     <div class="table-wrap">
-        <table>
+        <table id="dataTable">
             <thead>
                 <tr>
-                    <th>Waktu & Tanggal</th>
-                    <th>Nama Barang</th>
-                    <th>Kategori</th>
-                    <th>Harga</th>
-                    <th style="text-align:center">Aksi</th>
+                    <th onclick="sortTable(0)">Tanggal <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(1)">Nama Barang <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(2)">Kategori <i class="fas fa-sort"></i></th>
+                    <th onclick="sortTable(3)">Nominal Biaya <i class="fas fa-sort"></i></th>
+                    <th style="text-align:center; width: 100px;">Aksi</th>
                 </tr>
             </thead>
             <tbody id="tBody"></tbody>
@@ -150,15 +189,15 @@
 
 <div class="modal" id="formModal">
     <div class="modal-content">
-        <h3 id="mTitle" style="margin-top:0">Catat Pengeluaran</h3>
+        <h3 id="mTitle" style="margin-top:0; font-size:20px;">Catat Pengeluaran Baru</h3>
         <form id="rForm">
             <input type="hidden" id="fId">
             <div class="form-group">
-                <label>Tanggal</label>
+                <label>Tanggal Transaksi</label>
                 <input type="date" id="fTgl" required>
             </div>
             <div class="form-group">
-                <label>Kategori</label>
+                <label>Kategori Alokasi</label>
                 <select id="fKat" required>
                     <option value="Dapur & Sembako">Dapur & Sembako</option>
                     <option value="Kebutuhan Anak">Kebutuhan Anak</option>
@@ -170,28 +209,42 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Rincian Barang</label>
-                <input type="text" id="fNama" placeholder="Misal: Susu Formula, Token Listrik..." required>
+                <label>Detail Barang / Jasa</label>
+                <input type="text" id="fNama" placeholder="Misal: Beli Sayur, Token Listrik..." required>
             </div>
             <div class="form-group">
                 <label>Total Harga (Rp)</label>
                 <input type="text" id="fHarga" placeholder="150.000" onkeyup="formatRpInput(this)" required>
             </div>
             <div style="display:flex; gap:10px; margin-top:25px;">
-                <button type="button" onclick="closeModal('formModal')" style="flex:1; background:var(--border); color:var(--text)">Batal</button>
-                <button type="submit" class="btn-primary" id="fBtn" style="flex:2">Simpan Data</button>
+                <button type="button" onclick="closeModal('formModal')" style="flex:1; background:transparent; border:1px solid var(--border); color:var(--text)">Batal</button>
+                <button type="submit" class="btn-primary" id="fBtn" style="flex:2"><i class="fas fa-save"></i> Simpan Transaksi</button>
             </div>
         </form>
     </div>
 </div>
 
 <div class="modal" id="chartModal">
-    <div class="modal-content" style="max-width: 550px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h3 style="margin:0">Analisis Kategori (Bulan Ini)</h3>
-            <i class="fas fa-times" style="cursor:pointer; color:var(--sub); font-size:20px;" onclick="closeModal('chartModal')"></i>
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; font-size:22px;"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Analisis Finansial</h3>
+            <i class="fas fa-times" style="cursor:pointer; color:var(--sub); font-size:24px;" onclick="closeModal('chartModal')"></i>
         </div>
-        <canvas id="myPieChart"></canvas>
+        <div id="smartInsight" class="smart-insight"></div>
+        <div class="charts-grid">
+            <div class="chart-box">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--sub);">Tren Harian (Bulan Ini)</h4>
+                <canvas id="lineChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--sub);">Komposisi Kategori</h4>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="chart-box" style="grid-column: 1 / -1;">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--sub);">Rekap Bulanan (Tahun Ini)</h4>
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -200,52 +253,95 @@
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylz6J6atHhRJbc_Juw5z8AVXhZIJi3vG-7J2SPVcTudTqrkptcskeP5zC76Ow9YRym/exec'; 
 
     let db = [];
-    let chartInstance = null;
+    let chart1, chart2, chart3; 
+    let currentSortCol = -1;
+    let isAsc = true;
+
     document.getElementById('fTgl').valueAsDate = new Date();
 
-    // Dark/Light Mode
-    function toggleTheme() {
-        const body = document.body;
-        body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
-    }
-
-    // Format & UI Control
+    // UI Utilities
+    function toggleTheme() { document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark'; }
     function formatRpInput(obj) {
         let v = obj.value.replace(/[^,\d]/g, '').toString();
-        let sisa = v.length % 3;
-        let r = v.substr(0, sisa);
-        let ribuan = v.substr(sisa).match(/\d{3}/gi);
+        let sisa = v.length % 3, r = v.substr(0, sisa), ribuan = v.substr(sisa).match(/\d{3}/gi);
         if (ribuan) r += (sisa ? '.' : '') + ribuan.join('.');
         obj.value = r;
     }
     const toRp = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const cleanN = (s) => parseInt(s.replace(/\./g, ''));
 
-    function openModal(id) { 
-        document.getElementById(id).classList.add('active'); 
-        if(id === 'chartModal') renderChart(); // Render chart saat dibuka
+    // Fitur Baru: Bagikan Ringkasan ke WA
+    function shareToWA() {
+        const blnIni = document.getElementById('vBulan').innerText;
+        const mggIni = document.getElementById('vMinggu').innerText;
+        const hrIni = document.getElementById('vHari').innerText;
+        
+        const text = `📊 *Laporan Pengeluaran Keluarga*\n\nBulan Ini: *${blnIni}*\nMinggu Ini: *${mggIni}*\nHari Ini: *${hrIni}*\n\n_Catatan Otomatis dari Dashboard Finansial_`;
+        
+        // Coba buka WhatsApp Web/App langsung, jika tidak bisa copy ke clipboard
+        const waLink = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(waLink, '_blank');
     }
-    function closeModal(id) { 
-        document.getElementById(id).classList.remove('active');
-        if(id === 'formModal'){
-            document.getElementById('rForm').reset();
-            document.getElementById('fId').value = "";
-            document.getElementById('fTgl').valueAsDate = new Date();
+
+    // Modal Controls
+    function openModal(id) { document.getElementById(id).classList.add('active'); if(id === 'chartModal') renderAdvancedCharts(); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); if(id === 'formModal'){ document.getElementById('rForm').reset(); document.getElementById('fId').value = ""; document.getElementById('fTgl').valueAsDate = new Date(); } }
+    function setQuickFilter(elem, term) { document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); elem.classList.add('active'); document.getElementById('mainSearch').value = term; applyFilter(); }
+
+    // Fitur Baru: Pengaturan Budget (Disimpan di Local Storage Browser)
+    function setBudget() {
+        let currentBudget = localStorage.getItem('budgetKeluarga') || 0;
+        let p = prompt("Masukkan target maksimal belanja bulan ini (misal: 5000000 tanpa titik):", currentBudget);
+        if(p && !isNaN(p)) {
+            localStorage.setItem('budgetKeluarga', p);
+            calcDashboard(); // Kalkulasi ulang progress bar
         }
     }
 
-    // Data Loading & Filtering
+    function updateBudgetBar(totalBulanIni) {
+        const budget = localStorage.getItem('budgetKeluarga') || 0;
+        const fill = document.getElementById('budgetFill');
+        const lblTerpakai = document.getElementById('lblTerpakai');
+        const lblSisa = document.getElementById('lblSisa');
+
+        if(budget == 0) {
+            fill.style.width = '0%';
+            lblTerpakai.innerText = `Terpakai: ${toRp(totalBulanIni)}`;
+            lblSisa.innerText = "Target belum diatur (Klik Atur Budget)";
+            lblSisa.style.color = "var(--sub)";
+            return;
+        }
+
+        let persentase = (totalBulanIni / budget) * 100;
+        let sisa = budget - totalBulanIni;
+        
+        lblTerpakai.innerText = `Terpakai: ${toRp(totalBulanIni)}`;
+        
+        if (sisa >= 0) {
+            lblSisa.innerText = `Sisa: ${toRp(sisa)}`;
+            lblSisa.style.color = "var(--text)";
+        } else {
+            lblSisa.innerText = `Overbudget: ${toRp(Math.abs(sisa))}`;
+            lblSisa.style.color = "var(--danger)";
+        }
+
+        // Animasi Warna Progress Bar
+        if(persentase > 100) persentase = 100;
+        fill.style.width = `${persentase}%`;
+        
+        if(persentase < 50) fill.style.backgroundColor = "var(--success)"; // Aman Hijau
+        else if(persentase < 80) fill.style.backgroundColor = "var(--warning)"; // Awas Kuning
+        else fill.style.backgroundColor = "var(--danger)"; // Bahaya Merah
+    }
+
+    // Data Engine
     async function load() {
         document.getElementById('loader').style.display = 'block';
         try {
             const r = await fetch(APPS_SCRIPT_URL);
             db = await r.json();
-            
-            const thnSel = document.getElementById('selTahun');
             const thns = [...new Set(db.map(x => new Date(x.tanggal).getFullYear()))].sort((a,b)=>b-a);
-            thnSel.innerHTML = '<option value="semua">Semua Tahun</option>';
-            thns.forEach(t => { if(!isNaN(t)) thnSel.innerHTML += `<option value="${t}">${t}</option>` });
-            
+            document.getElementById('selTahun').innerHTML = '<option value="semua">Semua Tahun</option>' + thns.map(t => !isNaN(t) ? `<option value="${t}">${t}</option>` : '').join('');
             applyFilter();
         } catch (e) { console.error(e); }
         document.getElementById('loader').style.display = 'none';
@@ -258,181 +354,151 @@
 
         let res = db.filter(row => {
             const d = new Date(row.tanggal);
-            const namaHari = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d).toLowerCase();
-            const namaBln = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(d).toLowerCase();
-            
-            const mKey = row.nama.toLowerCase().includes(key) || row.kategori.toLowerCase().includes(key) || namaHari.includes(key) || namaBln.includes(key);
+            const mKey = row.nama.toLowerCase().includes(key) || row.kategori.toLowerCase().includes(key);
             const mBln = bln === 'semua' || d.getMonth() == bln;
             const mThn = thn === 'semua' || d.getFullYear() == thn;
             return mKey && mBln && mThn;
         }).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         render(res);
-        calcDashboard(); // Kalkulasi dashboard dari semua data (bukan yg difilter)
+        calcDashboard(); 
     }
 
     function render(data) {
-        const b = document.getElementById('tBody');
-        b.innerHTML = '';
+        const b = document.getElementById('tBody'); b.innerHTML = '';
         data.forEach(r => {
             const d = new Date(r.tanggal);
-            const hari = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d);
-            const tgl = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
             b.innerHTML += `<tr>
-                <td><strong>${hari}</strong><br><span style="font-size:12px; color:var(--sub)">${tgl}</span></td>
-                <td>${r.nama}</td>
-                <td><span class="cat-tag">${r.kategori}</span></td>
-                <td style="font-weight:700; color:var(--primary)">${toRp(r.jumlah)}</td>
+                <td data-val="${d.getTime()}"><strong>${new Intl.DateTimeFormat('id-ID', { weekday: 'short' }).format(d)}</strong><br><span style="font-size:12px; color:var(--sub)">${new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' }).format(d)}</span></td>
+                <td data-val="${r.nama}"><div style="font-weight:600;">${r.nama}</div></td>
+                <td data-val="${r.kategori}"><span class="cat-tag">${r.kategori}</span></td>
+                <td data-val="${r.jumlah}" style="font-weight:800; color:var(--primary)">${toRp(r.jumlah)}</td>
                 <td style="text-align:center">
-                    <button style="padding:6px 10px; background:rgba(99,102,241,0.1); color:var(--primary)" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
-                    <button style="padding:6px 10px; background:rgba(239,68,68,0.1); color:var(--danger)" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
+                    <button style="padding:8px; background:rgba(79, 70, 229, 0.1); color:var(--primary); border-radius:8px;" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
+                    <button style="padding:8px; background:rgba(239, 68, 68, 0.1); color:var(--danger); border-radius:8px; margin-left:5px;" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>`;
         });
     }
 
-    // Kalkulasi Data & Logika Hemat/Boros
+    // Fitur Baru: Sortable Table
+    function sortTable(n) {
+        const table = document.getElementById("dataTable");
+        let rows, switching, i, x, y, shouldSwitch;
+        switching = true;
+        isAsc = currentSortCol === n ? !isAsc : true;
+        currentSortCol = n;
+
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                
+                let valX = x.getAttribute("data-val");
+                let valY = y.getAttribute("data-val");
+
+                // Konversi string angka jadi number agar urutan benar (kolom harga & tanggal)
+                if(!isNaN(valX)) { valX = Number(valX); valY = Number(valY); }
+                else { valX = valX.toLowerCase(); valY = valY.toLowerCase(); }
+
+                if (isAsc ? (valX > valY) : (valX < valY)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+    }
+
     function getWeekNum(d) {
-        let date = new Date(d.getTime());
-        date.setHours(0, 0, 0, 0);
-        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-        let week1 = new Date(date.getFullYear(), 0, 4);
-        return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        let date = new Date(d.getTime()); date.setHours(0, 0, 0, 0); date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+        let week1 = new Date(date.getFullYear(), 0, 4); return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     }
 
     function calcDashboard() {
-        const now = new Date();
-        const currWeek = getWeekNum(now);
-        const currMonth = now.getMonth();
-        const currYear = now.getFullYear();
-
+        const now = new Date(), currWeek = getWeekNum(now), currMonth = now.getMonth(), currYear = now.getFullYear();
         let h = 0, mT = 0, mL = 0, bT = 0, bL = 0, y = 0;
 
         db.forEach(r => {
-            const d = new Date(r.tanggal);
-            const v = Number(r.jumlah);
-            
+            const d = new Date(r.tanggal), v = Number(r.jumlah);
             if(d.getFullYear() === currYear) {
                 y += v;
-                // Hitung Bulan
                 if(d.getMonth() === currMonth) bT += v;
                 if(d.getMonth() === currMonth - 1) bL += v;
-                // Hitung Minggu
                 if(getWeekNum(d) === currWeek) mT += v;
                 if(getWeekNum(d) === currWeek - 1) mL += v;
-                // Hitung Hari
                 if(d.toDateString() === now.toDateString()) h += v;
             }
         });
 
-        document.getElementById('vHari').innerText = toRp(h);
-        document.getElementById('vMinggu').innerText = toRp(mT);
-        document.getElementById('vBulan').innerText = toRp(bT);
-        document.getElementById('vTahun').innerText = toRp(y);
+        document.getElementById('vHari').innerText = toRp(h); document.getElementById('vMinggu').innerText = toRp(mT);
+        document.getElementById('vBulan').innerText = toRp(bT); document.getElementById('vTahun').innerText = toRp(y);
 
-        // Update Badge Minggu
         const bgM = document.getElementById('badgeMinggu');
-        if (mT > mL) { bgM.className = 'badge-status boros'; bgM.innerHTML = `<i class="fas fa-arrow-up"></i> Boros dari mgg lalu`; }
-        else { bgM.className = 'badge-status hemat'; bgM.innerHTML = `<i class="fas fa-arrow-down"></i> Hemat dari mgg lalu`; }
+        if (mT > mL) { bgM.className = 'badge-status boros'; bgM.innerHTML = `<i class="fas fa-arrow-up"></i> Naik dari mgg lalu`; }
+        else { bgM.className = 'badge-status hemat'; bgM.innerHTML = `<i class="fas fa-arrow-down"></i> Turun dari mgg lalu`; }
 
-        // Update Badge Bulan
         const bgB = document.getElementById('badgeBulan');
-        if (bT > bL) { bgB.className = 'badge-status boros'; bgB.innerHTML = `<i class="fas fa-arrow-up"></i> Boros dari bln lalu`; }
-        else { bgB.className = 'badge-status hemat'; bgB.innerHTML = `<i class="fas fa-arrow-down"></i> Hemat dari bln lalu`; }
+        if (bT > bL) { bgB.className = 'badge-status boros'; bgB.innerHTML = `<i class="fas fa-arrow-up"></i> Naik dari bln lalu`; }
+        else { bgB.className = 'badge-status hemat'; bgB.innerHTML = `<i class="fas fa-arrow-down"></i> Turun dari bln lalu`; }
+
+        // Update Progress Bar Budget
+        updateBudgetBar(bT);
     }
 
-    // Chart.js (Grafik Lingkaran per Kategori)
-    function renderChart() {
-        const ctx = document.getElementById('myPieChart').getContext('2d');
+    function renderAdvancedCharts() {
+        const curM = new Date().getMonth(), curY = new Date().getFullYear();
+        const dailyData = Array(31).fill(0), monthlyData = Array(12).fill(0);
         const catTotals = {};
-        
-        // Kumpulkan data bulan ini berdasarkan kategori
+
         db.forEach(r => {
-            const d = new Date(r.tanggal);
-            if(d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear()) {
-                catTotals[r.kategori] = (catTotals[r.kategori] || 0) + Number(r.jumlah);
+            const d = new Date(r.tanggal), v = Number(r.jumlah);
+            if(d.getFullYear() === curY) {
+                monthlyData[d.getMonth()] += v;
+                if(d.getMonth() === curM) {
+                    dailyData[d.getDate()-1] += v;
+                    catTotals[r.kategori] = (catTotals[r.kategori] || 0) + v;
+                }
             }
         });
 
-        const labels = Object.keys(catTotals);
-        const dataVals = Object.values(catTotals);
-        const colors = ['#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
+        let maxCat = "-", maxVal = 0;
+        for(const [cat, val] of Object.entries(catTotals)) { if(val > maxVal) { maxVal = val; maxCat = cat; } }
+        document.getElementById('smartInsight').innerHTML = maxVal > 0 ? 
+            `<strong><i class="fas fa-lightbulb" style="color: var(--warning);"></i> Smart Insight:</strong> Pengeluaran terbesar bulan ini ada di kategori <b>${maxCat}</b> (${toRp(maxVal)}).` : 
+            `<strong><i class="fas fa-info-circle"></i> Info:</strong> Belum ada transaksi bulan ini.`;
 
-        if(chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels.length ? labels : ['Belum Ada Data'],
-                datasets: [{
-                    data: dataVals.length ? dataVals : [1],
-                    backgroundColor: dataVals.length ? colors : ['#e2e8f0'],
-                    borderWidth: 0, hoverOffset: 4
-                }]
-            },
-            options: {
-                responsive: true, cutout: '70%',
-                plugins: { legend: { position: 'bottom', labels: {font:{family:"'Plus Jakarta Sans'"}} } }
-            }
-        });
+        if(chart1) chart1.destroy();
+        chart1 = new Chart(document.getElementById('lineChart').getContext('2d'), { type: 'line', data: { labels: Array.from({length:31}, (_,i)=>i+1), datasets: [{ data: dailyData, borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.3 }] }, options: { plugins:{legend:{display:false}}, scales:{y:{display:false}} } });
+
+        const cl = Object.keys(catTotals), cv = Object.values(catTotals);
+        if(chart2) chart2.destroy();
+        chart2 = new Chart(document.getElementById('pieChart').getContext('2d'), { type: 'doughnut', data: { labels: cl.length?cl:['Kosong'], datasets: [{ data: cv.length?cv:[1], backgroundColor: ['#4f46e5', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'], borderWidth: 0 }] }, options: { cutout:'65%', plugins:{legend:{position:'right', labels:{boxWidth:12, font:{size:10}}}} } });
+
+        if(chart3) chart3.destroy();
+        chart3 = new Chart(document.getElementById('barChart').getContext('2d'), { type: 'bar', data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'], datasets: [{ data: monthlyData, backgroundColor: '#818cf8', borderRadius: 6 }] }, options: { plugins:{legend:{display:false}} } });
     }
 
-    // CRUD Ops
+    // CRUD
     document.getElementById('rForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('fBtn');
-        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-        
+        e.preventDefault(); const btn = document.getElementById('fBtn'); btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
         const id = document.getElementById('fId').value;
-        const payload = {
-            action: id ? 'edit' : 'add', id: id || Date.now().toString(),
-            tanggal: document.getElementById('fTgl').value,
-            nama: document.getElementById('fNama').value,
-            kategori: document.getElementById('fKat').value,
-            jumlah: cleanN(document.getElementById('fHarga').value)
-        };
-
-        await fetch(APPS_SCRIPT_URL, {
-            redirect: "follow", method: 'POST', body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
-        
-        closeModal('formModal');
-        btn.disabled = false; btn.innerText = "Simpan Data";
-        load();
+        const payload = { action: id ? 'edit' : 'add', id: id || Date.now().toString(), tanggal: document.getElementById('fTgl').value, nama: document.getElementById('fNama').value, kategori: document.getElementById('fKat').value, jumlah: cleanN(document.getElementById('fHarga').value) };
+        await fetch(APPS_SCRIPT_URL, { redirect: "follow", method: 'POST', body: JSON.stringify(payload), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+        closeModal('formModal'); btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Transaksi'; load();
     });
 
-    function edit(id) {
-        const r = db.find(x => x.id == id);
-        if(r) {
-            document.getElementById('fId').value = r.id;
-            document.getElementById('fTgl').value = new Date(r.tanggal).toISOString().split('T')[0];
-            document.getElementById('fNama').value = r.nama;
-            document.getElementById('fKat').value = r.kategori;
-            document.getElementById('fHarga').value = r.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            document.getElementById('mTitle').innerText = "Edit Pengeluaran";
-            openModal('formModal');
-        }
-    }
-
-    async function del(id) {
-        if(confirm("Hapus baris data ini permanen?")) {
-            document.getElementById('loader').style.display = 'block';
-            await fetch(APPS_SCRIPT_URL, {
-                redirect: "follow", method: 'POST', body: JSON.stringify({action:'delete', id: id}),
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-            });
-            load();
-        }
-    }
-
-    // Ekspor Data
-    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector("table")), "Belanja.xlsx"); }
-    function exportPDF() {
-        const { jsPDF } = window.jspdf; const doc = new jsPDF();
-        doc.text("Rekap Belanja Keluarga", 14, 15);
-        doc.autoTable({ html: 'table', startY: 22 });
-        doc.save("Belanja.pdf");
-    }
+    function edit(id) { const r = db.find(x => x.id == id); if(r) { document.getElementById('fId').value = r.id; document.getElementById('fTgl').value = new Date(r.tanggal).toISOString().split('T')[0]; document.getElementById('fNama').value = r.nama; document.getElementById('fKat').value = r.kategori; document.getElementById('fHarga').value = r.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); document.getElementById('mTitle').innerText = "Edit Transaksi"; openModal('formModal'); } }
+    async function del(id) { if(confirm("Hapus baris data ini permanen?")) { document.getElementById('loader').style.display = 'block'; await fetch(APPS_SCRIPT_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({action:'delete', id: id}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }); load(); } }
+    
+    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector("table")), "Rekap_Keuangan_Keluarga.xlsx"); }
+    function exportPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text("Rekap Keuangan Keluarga", 14, 15); doc.autoTable({ html: '#dataTable', startY: 22 }); doc.save("Rekap_Keuangan.pdf"); }
 
     window.onload = load;
 </script>
