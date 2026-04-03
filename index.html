@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Rekap Belanja</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root { --primary: #2563eb; --success: #10b981; --danger: #ef4444; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .app-container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Header & Dashboard Cards */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .card h3 { margin: 0 0 10px 0; font-size: 14px; color: #64748b; }
+        .card .value { font-size: 24px; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+        .hemat { background: #d1fae5; color: #047857; }
+        .boros { background: #fee2e2; color: #b91c1c; }
+
+        /* Buttons */
+        button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-icon { padding: 6px 10px; font-size: 14px; margin-right: 5px; }
+        
+        /* Table */
+        .table-container { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #f1f5f9; font-weight: 600; }
+        tr:hover { background: #f8fafc; }
+
+        /* Modal (Pop-up) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 16px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 20px; color: #94a3b8; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--primary); }
+
+        /* Loader */
+        .loader { display: none; text-align: center; padding: 20px; font-style: italic; color: #64748b; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h2>Dashboard Finansial</h2>
+        <div>
+            <button class="btn-primary" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Tambah Data</button>
+            <button class="btn-primary" style="background:#475569" onclick="openModal('chartModal')"><i class="fas fa-chart-pie"></i> Analitik</button>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Belanja Minggu Ini</h3>
+            <div class="value" id="valMingguIni">Rp 0</div>
+            <div id="statusMinggu" class="status-badge">Memuat...</div>
+        </div>
+        <div class="card">
+            <h3>Belanja Bulan Ini</h3>
+            <div class="value" id="valBulanIni">Rp 0</div>
+            <div id="statusBulan" class="status-badge">Memuat...</div>
+        </div>
+        <div class="card">
+            <h3>Total Tahun Ini</h3>
+            <div class="value" id="valTahunIni">Rp 0</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+            <h3 style="margin:0">Rekap Riwayat</h3>
+            <div>
+                <button class="btn-success btn-icon" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+                <button class="btn-danger btn-icon" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+        </div>
+        
+        <div id="loader" class="loader"><i class="fas fa-spinner fa-spin"></i> Memuat data dari server...</div>
+        
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Jumlah Belanja</th>
+                    <th style="width: 120px; text-align:center;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal" id="formModal">
+    <div class="modal-content">
+        <i class="fas fa-times close-btn" onclick="closeModal('formModal')"></i>
+        <h3 id="modalTitle" style="margin-top:0;">Tambah Pengeluaran</h3>
+        <form id="rekapForm">
+            <input type="hidden" id="rowId">
+            <div class="form-group">
+                <label>Tanggal</label>
+                <input type="date" id="tanggal" required>
+            </div>
+            <div class="form-group">
+                <label>Total Belanja (Rp)</label>
+                <input type="number" id="jumlah" required>
+            </div>
+            <button type="submit" class="btn-primary" id="btnSubmit" style="width: 100%">Simpan Data</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="chartModal">
+    <div class="modal-content" style="max-width: 600px;">
+        <i class="fas fa-times close-btn" onclick="closeModal('chartModal')"></i>
+        <h3 style="margin-top:0;">Analitik Pengeluaran Bulanan</h3>
+        <canvas id="myPieChart"></canvas>
+    </div>
+</div>
+
+<script>
+    // --- KONFIGURASI URL APPS SCRIPT ---
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylz6J6atHhRJbc_Juw5z8AVXhZIJi3vG-7J2SPVcTudTqrkptcskeP5zC76Ow9YRym/exec'; 
+    let globalData = [];
+    let pieChartInstance = null;
+
+    // --- UI FUNCTIONS ---
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { 
+        document.getElementById(id).classList.remove('active'); 
+        if(id === 'formModal') document.getElementById('rekapForm').reset();
+        document.getElementById('rowId').value = "";
+        document.getElementById('modalTitle').innerText = "Tambah Pengeluaran";
+    }
+    const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+    // --- CORE LOGIC ---
+    async function loadData() {
+        document.getElementById('loader').style.display = 'block';
+        document.getElementById('tableBody').innerHTML = '';
+        
+        try {
+            const res = await fetch(APPS_SCRIPT_URL);
+            const data = await res.json();
+            globalData = data;
+            renderTable();
+            calculateDashboard();
+            renderChart();
+        } catch (error) {
+            console.error("Gagal memuat data", error);
+        }
+        document.getElementById('loader').style.display = 'none';
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        // Render dari yang terbaru
+        const sortedData = [...globalData].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        sortedData.forEach(row => {
+            const tr = document.createElement('tr');
+            const d = new Date(row.tanggal);
+            tr.innerHTML = `
+                <td>${d.toLocaleDateString('id-ID')}</td>
+                <td>${formatRp(row.jumlah)}</td>
+                <td style="text-align:center;">
+                    <button class="btn-primary btn-icon" onclick="editData(${row.id}, '${row.tanggal}', ${row.jumlah})"><i class="fas fa-edit"></i></button>
+                    <button class="btn-danger btn-icon" onclick="deleteData(${row.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // --- FORM SUBMIT (ADD/EDIT) ---
+    document.getElementById('rekapForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSubmit');
+        btn.innerText = "Memproses...";
+        btn.disabled = true;
+
+        const rowId = document.getElementById('rowId').value;
+        const payload = {
+            action: rowId ? 'edit' : 'add',
+            id: rowId || null,
+            tanggal: document.getElementById('tanggal').value,
+            jumlah: parseInt(document.getElementById('jumlah').value)
+        };
+
+        await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        });
+
+        closeModal('formModal');
+        btn.innerText = "Simpan Data";
+        btn.disabled = false;
+        loadData(); // Refresh otomatis
+    });
+
+    // --- EDIT & DELETE ---
+    function editData(id, tgl, jml) {
+        const dateObj = new Date(tgl);
+        document.getElementById('rowId').value = id;
+        document.getElementById('tanggal').value = dateObj.toISOString().split('T')[0];
+        document.getElementById('jumlah').value = jml;
+        document.getElementById('modalTitle').innerText = "Edit Pengeluaran";
+        openModal('formModal');
+    }
+
+    async function deleteData(id) {
+        if(confirm("Yakin ingin menghapus data ini?")) {
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete', id: id })
+            });
+            loadData();
+        }
+    }
+
+    // --- ANALYTICS & DASHBOARD ---
+    function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+        var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+
+    function calculateDashboard() {
+        const now = new Date();
+        const currWeek = getWeekNumber(now);
+        const currMonth = now.getMonth();
+        const currYear = now.getFullYear();
+
+        let wThis = 0, wLast = 0;
+        let mThis = 0, mLast = 0;
+        let yThis = 0;
+
+        globalData.forEach(r => {
+            const d = new Date(r.tanggal);
+            const amt = Number(r.jumlah);
+            
+            // Tahun
+            if(d.getFullYear() === currYear) {
+                yThis += amt;
+                // Bulan
+                if(d.getMonth() === currMonth) mThis += amt;
+                if(d.getMonth() === currMonth - 1) mLast += amt;
+                // Minggu
+                if(getWeekNumber(d) === currWeek) wThis += amt;
+                if(getWeekNumber(d) === currWeek - 1) wLast += amt;
+            }
+        });
+
+        document.getElementById('valMingguIni').innerText = formatRp(wThis);
+        document.getElementById('valBulanIni').innerText = formatRp(mThis);
+        document.getElementById('valTahunIni').innerText = formatRp(yThis);
+
+        // Hemat / Boros Logic
+        const statM = document.getElementById('statusMinggu');
+        if (wThis > wLast) { statM.className = 'status-badge boros'; statM.innerText = `Naik dari mgg lalu`; }
+        else { statM.className = 'status-badge hemat'; statM.innerText = `Turun dari mgg lalu (Hemat)`; }
+
+        const statB = document.getElementById('statusBulan');
+        if (mThis > mLast) { statB.className = 'status-badge boros'; statB.innerText = `Naik dari bln lalu`; }
+        else { statB.className = 'status-badge hemat'; statB.innerText = `Turun dari bln lalu (Hemat)`; }
+    }
+
+    // --- CHART.JS (KURVA LINGKARAN) ---
+    function renderChart() {
+        const ctx = document.getElementById('myPieChart').getContext('2d');
+        
+        // Group data by month for the chart
+        const monthlyData = Array(12).fill(0);
+        globalData.forEach(r => {
+            const d = new Date(r.tanggal);
+            if(d.getFullYear() === new Date().getFullYear()) {
+                monthlyData[d.getMonth()] += Number(r.jumlah);
+            }
+        });
+
+        const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+        
+        if(pieChartInstance) pieChartInstance.destroy();
+        
+        pieChartInstance = new Chart(ctx, {
+            type: 'doughnut', // Atau ganti 'pie' untuk lingkaran penuh
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: monthlyData,
+                    backgroundColor: ['#ef4444','#f97316','#f59e0b','#84cc16','#22c55e','#10b981','#14b8a6','#06b6d4','#0ea5e9','#3b82f6','#6366f1','#8b5cf6'],
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'right' } } }
+        });
+    }
+
+    // --- EXPORT ---
+    function exportExcel() {
+        const table = document.getElementById("dataTable");
+        const wb = XLSX.utils.table_to_book(table, {sheet: "Rekap"});
+        XLSX.writeFile(wb, "Rekap_Belanja.xlsx");
+    }
+
+    function exportPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.text("Rekap Belanja Harian", 14, 15);
+        doc.autoTable({ html: '#dataTable', startY: 20 });
+        doc.save('Rekap_Belanja.pdf');
+    }
+
+    // Inisialisasi
+    window.onload = loadData;
+</script>
+
+</body>
+</html>
