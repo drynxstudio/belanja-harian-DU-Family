@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     
@@ -14,49 +15,63 @@
         :root {
             --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --sub: #64748b;
             --primary: #6366f1; --border: #e2e8f0; --danger: #ef4444; --success: #22c55e;
+            --input-bg: #ffffff;
         }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        [data-theme="dark"] {
+            --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --sub: #94a3b8;
+            --border: #334155; --input-bg: #0f172a;
+        }
         
-        /* UI Baru yang Lebih Keren */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #6366f1, #a855f7); padding: 25px; border-radius: 20px; color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; transition: 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        
+        /* Header */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #6366f1, #a855f7); padding: 25px; border-radius: 20px; color: white; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); flex-wrap: wrap; gap: 15px; }
         .header h2 { margin: 0; font-size: 22px; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .stat-card span { font-size: 12px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
-        .stat-card div { font-size: 20px; font-weight: 700; margin-top: 5px; color: var(--primary); }
+        .stat-card div.value { font-size: 22px; font-weight: 700; margin-top: 5px; color: var(--primary); }
+        
+        /* Badges Hemat/Boros */
+        .badge-status { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-top: 8px; }
+        .hemat { background: rgba(34, 197, 94, 0.1); color: var(--success); }
+        .boros { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
         /* Search & Filter */
-        .search-area { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .search-box { flex: 1; position: relative; min-width: 250px; }
+        .search-area { background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border); display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; position: relative; min-width: 200px; }
         .search-box i { position: absolute; left: 15px; top: 12px; color: var(--sub); }
-        .search-box input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-family: inherit; transition: 0.2s; }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
+        .search-box input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--border); border-radius: 10px; outline: none; font-family: inherit; background: var(--input-bg); color: var(--text); box-sizing: border-box;}
         
-        select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; outline: none; cursor: pointer; }
+        select { padding: 10px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; outline: none; cursor: pointer; background: var(--input-bg); color: var(--text); }
 
-        /* Button & Table */
-        button { padding: 10px 18px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        /* Buttons */
+        button { padding: 10px 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-add { background: white; color: var(--primary); }
+        .btn-chart { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); }
+        .btn-chart:hover { background: rgba(255,255,255,0.3); }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-export { background: #f1f5f9; color: var(--text); border: 1px solid var(--border); }
+        .btn-export { background: transparent; color: var(--text); border: 1px solid var(--border); }
         
-        .table-wrap { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #f8fafc; padding: 15px; text-align: left; font-size: 13px; color: var(--sub); border-bottom: 1px solid var(--border); }
+        /* Table */
+        .table-wrap { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: rgba(0,0,0,0.02); padding: 15px; text-align: left; font-size: 13px; color: var(--sub); border-bottom: 1px solid var(--border); }
         td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        tr:last-child td { border: none; }
         .cat-tag { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; background: #eef2ff; color: #4338ca; }
 
-        /* Modal Pop-up */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-        .modal.active { display: flex; }
-        .modal-content { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; }
-        .modal-content h3 { margin-top: 0; margin-bottom: 20px; }
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+        .modal.active { display: flex; animation: fadeIn 0.2s; }
+        @keyframes fadeIn { from {opacity:0; transform:scale(0.95)} to {opacity:1; transform:scale(1)} }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; max-height: 90vh; overflow-y: auto;}
+        
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; box-sizing: border-box; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; box-sizing: border-box; background: var(--input-bg); color: var(--text); outline:none; font-family: inherit;}
         
         #loader { display: none; text-align: center; padding: 10px; color: var(--primary); font-weight: 700; font-size: 13px; }
     </style>
@@ -66,34 +81,62 @@
 <div class="container">
     <div class="header">
         <div>
-            <h2><i class="fas fa-home"></i> Belanja Keluarga</h2>
+            <h2><i class="fas fa-home"></i> Keuangan Keluarga</h2>
             <div id="loader"><i class="fas fa-sync fa-spin"></i> Sinkronisasi...</div>
         </div>
-        <button class="btn-add" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Belanja</button>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-chart" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+            <button class="btn-chart" onclick="openModal('chartModal')"><i class="fas fa-chart-pie"></i> Analitik</button>
+            <button class="btn-add" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Belanja</button>
+        </div>
     </div>
 
     <div class="stats-grid">
-        <div class="stat-card"><span>Hari Ini</span><div id="vHari">Rp 0</div></div>
-        <div class="stat-card"><span>Minggu Ini</span><div id="vMinggu">Rp 0</div></div>
-        <div class="stat-card"><span>Bulan Ini</span><div id="vBulan">Rp 0</div></div>
-        <div class="stat-card"><span>Tahun Ini</span><div id="vTahun">Rp 0</div></div>
+        <div class="stat-card">
+            <span>Hari Ini</span>
+            <div class="value" id="vHari">Rp 0</div>
+            <div class="badge-status" style="background:#e0f2fe; color:#0284c7;">Total Pengeluaran Harian</div>
+        </div>
+        <div class="stat-card">
+            <span>Minggu Ini</span>
+            <div class="value" id="vMinggu">Rp 0</div>
+            <div id="badgeMinggu" class="badge-status hemat"><i class="fas fa-minus"></i> Memuat...</div>
+        </div>
+        <div class="stat-card">
+            <span>Bulan Ini</span>
+            <div class="value" id="vBulan">Rp 0</div>
+            <div id="badgeBulan" class="badge-status hemat"><i class="fas fa-minus"></i> Memuat...</div>
+        </div>
+        <div class="stat-card">
+            <span>Tahun Ini</span>
+            <div class="value" id="vTahun">Rp 0</div>
+        </div>
     </div>
 
     <div class="search-area">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="mainSearch" placeholder="Cari nama barang, kategori, hari, atau bulan..." onkeyup="applyFilter()">
+            <input type="text" id="mainSearch" placeholder="Cari barang, kategori, bulan, hari..." onkeyup="applyFilter()">
         </div>
+        <select id="selBulan" onchange="applyFilter()">
+            <option value="semua">Semua Bulan</option>
+            <option value="0">Januari</option><option value="1">Februari</option>
+            <option value="2">Maret</option><option value="3">April</option>
+            <option value="4">Mei</option><option value="5">Juni</option>
+            <option value="6">Juli</option><option value="7">Agustus</option>
+            <option value="8">September</option><option value="9">Oktober</option>
+            <option value="10">November</option><option value="11">Desember</option>
+        </select>
         <select id="selTahun" onchange="applyFilter()"><option value="semua">Semua Tahun</option></select>
-        <button class="btn-export" onclick="exportExcel()"><i class="fas fa-file-excel"></i></button>
-        <button class="btn-export" onclick="exportPDF()"><i class="fas fa-file-pdf"></i></button>
+        <button class="btn-export" onclick="exportExcel()"><i class="fas fa-file-excel" style="color:#10b981"></i></button>
+        <button class="btn-export" onclick="exportPDF()"><i class="fas fa-file-pdf" style="color:#ef4444"></i></button>
     </div>
 
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>Waktu</th>
+                    <th>Waktu & Tanggal</th>
                     <th>Nama Barang</th>
                     <th>Kategori</th>
                     <th>Harga</th>
@@ -107,7 +150,7 @@
 
 <div class="modal" id="formModal">
     <div class="modal-content">
-        <h3 id="mTitle">Catat Pengeluaran</h3>
+        <h3 id="mTitle" style="margin-top:0">Catat Pengeluaran</h3>
         <form id="rForm">
             <input type="hidden" id="fId">
             <div class="form-group">
@@ -115,7 +158,7 @@
                 <input type="date" id="fTgl" required>
             </div>
             <div class="form-group">
-                <label>Kategori Keluarga</label>
+                <label>Kategori</label>
                 <select id="fKat" required>
                     <option value="Dapur & Sembako">Dapur & Sembako</option>
                     <option value="Kebutuhan Anak">Kebutuhan Anak</option>
@@ -127,28 +170,46 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Nama Barang</label>
-                <input type="text" id="fNama" placeholder="Misal: Susu Anak, Token Listrik..." required>
+                <label>Rincian Barang</label>
+                <input type="text" id="fNama" placeholder="Misal: Susu Formula, Token Listrik..." required>
             </div>
             <div class="form-group">
-                <label>Harga (Rp)</label>
-                <input type="text" id="fHarga" placeholder="10.000" onkeyup="formatRpInput(this)" required>
+                <label>Total Harga (Rp)</label>
+                <input type="text" id="fHarga" placeholder="150.000" onkeyup="formatRpInput(this)" required>
             </div>
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button type="button" onclick="closeModal('formModal')" style="flex:1; background:#f1f5f9">Batal</button>
+            <div style="display:flex; gap:10px; margin-top:25px;">
+                <button type="button" onclick="closeModal('formModal')" style="flex:1; background:var(--border); color:var(--text)">Batal</button>
                 <button type="submit" class="btn-primary" id="fBtn" style="flex:2">Simpan Data</button>
             </div>
         </form>
     </div>
 </div>
 
+<div class="modal" id="chartModal">
+    <div class="modal-content" style="max-width: 550px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0">Analisis Kategori (Bulan Ini)</h3>
+            <i class="fas fa-times" style="cursor:pointer; color:var(--sub); font-size:20px;" onclick="closeModal('chartModal')"></i>
+        </div>
+        <canvas id="myPieChart"></canvas>
+    </div>
+</div>
+
 <script>
-    // MASUKKAN URL ANDA DI SINI. JANGAN HAPUS TANDA PETIKNYA.
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUeLobYK_QILBRm612kgx9N9IVPPBfKgnVtem0hrEV3MPWMo6iXreewqZIkXlHApKA/exec'; 
+    // MASUKKAN URL APPS SCRIPT ANDA DI SINI
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylz6J6atHhRJbc_Juw5z8AVXhZIJi3vG-7J2SPVcTudTqrkptcskeP5zC76Ow9YRym/exec'; 
 
     let db = [];
+    let chartInstance = null;
     document.getElementById('fTgl').valueAsDate = new Date();
 
+    // Dark/Light Mode
+    function toggleTheme() {
+        const body = document.body;
+        body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+    }
+
+    // Format & UI Control
     function formatRpInput(obj) {
         let v = obj.value.replace(/[^,\d]/g, '').toString();
         let sisa = v.length % 3;
@@ -157,25 +218,29 @@
         if (ribuan) r += (sisa ? '.' : '') + ribuan.join('.');
         obj.value = r;
     }
-
     const toRp = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const cleanN = (s) => parseInt(s.replace(/\./g, ''));
 
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function openModal(id) { 
+        document.getElementById(id).classList.add('active'); 
+        if(id === 'chartModal') renderChart(); // Render chart saat dibuka
+    }
     function closeModal(id) { 
         document.getElementById(id).classList.remove('active');
-        document.getElementById('rForm').reset();
-        document.getElementById('fId').value = "";
-        document.getElementById('fTgl').valueAsDate = new Date();
+        if(id === 'formModal'){
+            document.getElementById('rForm').reset();
+            document.getElementById('fId').value = "";
+            document.getElementById('fTgl').valueAsDate = new Date();
+        }
     }
 
+    // Data Loading & Filtering
     async function load() {
         document.getElementById('loader').style.display = 'block';
         try {
             const r = await fetch(APPS_SCRIPT_URL);
             db = await r.json();
             
-            // Isi dropdown tahun
             const thnSel = document.getElementById('selTahun');
             const thns = [...new Set(db.map(x => new Date(x.tanggal).getFullYear()))].sort((a,b)=>b-a);
             thnSel.innerHTML = '<option value="semua">Semua Tahun</option>';
@@ -188,24 +253,22 @@
 
     function applyFilter() {
         const key = document.getElementById('mainSearch').value.toLowerCase();
+        const bln = document.getElementById('selBulan').value;
         const thn = document.getElementById('selTahun').value;
-        const now = new Date();
 
         let res = db.filter(row => {
             const d = new Date(row.tanggal);
             const namaHari = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d).toLowerCase();
-            const namaBulan = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(d).toLowerCase();
+            const namaBln = new Intl.DateTimeFormat('id-ID', { month: 'long' }).format(d).toLowerCase();
             
-            const mKey = row.nama.toLowerCase().includes(key) || 
-                         row.kategori.toLowerCase().includes(key) ||
-                         namaHari.includes(key) ||
-                         namaBulan.includes(key);
+            const mKey = row.nama.toLowerCase().includes(key) || row.kategori.toLowerCase().includes(key) || namaHari.includes(key) || namaBln.includes(key);
+            const mBln = bln === 'semua' || d.getMonth() == bln;
             const mThn = thn === 'semua' || d.getFullYear() == thn;
-            return mKey && mThn;
+            return mKey && mBln && mThn;
         }).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         render(res);
-        calc(res);
+        calcDashboard(); // Kalkulasi dashboard dari semua data (bukan yg difilter)
     }
 
     function render(data) {
@@ -213,50 +276,115 @@
         b.innerHTML = '';
         data.forEach(r => {
             const d = new Date(r.tanggal);
-            const hari = new Intl.DateTimeFormat('id-ID', { weekday: 'short', day: 'numeric', month: 'short' }).format(d);
+            const hari = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d);
+            const tgl = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
             b.innerHTML += `<tr>
-                <td><strong>${hari}</strong></td>
+                <td><strong>${hari}</strong><br><span style="font-size:12px; color:var(--sub)">${tgl}</span></td>
                 <td>${r.nama}</td>
                 <td><span class="cat-tag">${r.kategori}</span></td>
-                <td style="font-weight:700">${toRp(r.jumlah)}</td>
+                <td style="font-weight:700; color:var(--primary)">${toRp(r.jumlah)}</td>
                 <td style="text-align:center">
-                    <button style="padding:5px 8px; background:#eef2ff; color:#4338ca" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
-                    <button style="padding:5px 8px; background:#fef2f2; color:#ef4444" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
+                    <button style="padding:6px 10px; background:rgba(99,102,241,0.1); color:var(--primary)" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
+                    <button style="padding:6px 10px; background:rgba(239,68,68,0.1); color:var(--danger)" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>`;
         });
     }
 
-    function calc(data) {
-        const n = new Date();
-        let h = 0, m = 0, b = 0, t = 0;
-        const startWeek = new Date(n.setDate(n.getDate() - n.getDay())); // Minggu ini
-        
-        data.forEach(r => {
-            const d = new Date(r.tanggal);
-            const v = Number(r.jumlah);
-            if(d.getFullYear() === new Date().getFullYear()) {
-                t += v;
-                if(d.getMonth() === new Date().getMonth()) b += v;
-                if(d >= startWeek) m += v;
-                if(d.toDateString() === new Date().toDateString()) h += v;
-            }
-        });
-        document.getElementById('vHari').innerText = toRp(h);
-        document.getElementById('vMinggu').innerText = toRp(m);
-        document.getElementById('vBulan').innerText = toRp(b);
-        document.getElementById('vTahun').innerText = toRp(t);
+    // Kalkulasi Data & Logika Hemat/Boros
+    function getWeekNum(d) {
+        let date = new Date(d.getTime());
+        date.setHours(0, 0, 0, 0);
+        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+        let week1 = new Date(date.getFullYear(), 0, 4);
+        return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
     }
 
+    function calcDashboard() {
+        const now = new Date();
+        const currWeek = getWeekNum(now);
+        const currMonth = now.getMonth();
+        const currYear = now.getFullYear();
+
+        let h = 0, mT = 0, mL = 0, bT = 0, bL = 0, y = 0;
+
+        db.forEach(r => {
+            const d = new Date(r.tanggal);
+            const v = Number(r.jumlah);
+            
+            if(d.getFullYear() === currYear) {
+                y += v;
+                // Hitung Bulan
+                if(d.getMonth() === currMonth) bT += v;
+                if(d.getMonth() === currMonth - 1) bL += v;
+                // Hitung Minggu
+                if(getWeekNum(d) === currWeek) mT += v;
+                if(getWeekNum(d) === currWeek - 1) mL += v;
+                // Hitung Hari
+                if(d.toDateString() === now.toDateString()) h += v;
+            }
+        });
+
+        document.getElementById('vHari').innerText = toRp(h);
+        document.getElementById('vMinggu').innerText = toRp(mT);
+        document.getElementById('vBulan').innerText = toRp(bT);
+        document.getElementById('vTahun').innerText = toRp(y);
+
+        // Update Badge Minggu
+        const bgM = document.getElementById('badgeMinggu');
+        if (mT > mL) { bgM.className = 'badge-status boros'; bgM.innerHTML = `<i class="fas fa-arrow-up"></i> Boros dari mgg lalu`; }
+        else { bgM.className = 'badge-status hemat'; bgM.innerHTML = `<i class="fas fa-arrow-down"></i> Hemat dari mgg lalu`; }
+
+        // Update Badge Bulan
+        const bgB = document.getElementById('badgeBulan');
+        if (bT > bL) { bgB.className = 'badge-status boros'; bgB.innerHTML = `<i class="fas fa-arrow-up"></i> Boros dari bln lalu`; }
+        else { bgB.className = 'badge-status hemat'; bgB.innerHTML = `<i class="fas fa-arrow-down"></i> Hemat dari bln lalu`; }
+    }
+
+    // Chart.js (Grafik Lingkaran per Kategori)
+    function renderChart() {
+        const ctx = document.getElementById('myPieChart').getContext('2d');
+        const catTotals = {};
+        
+        // Kumpulkan data bulan ini berdasarkan kategori
+        db.forEach(r => {
+            const d = new Date(r.tanggal);
+            if(d.getMonth() === new Date().getMonth() && d.getFullYear() === new Date().getFullYear()) {
+                catTotals[r.kategori] = (catTotals[r.kategori] || 0) + Number(r.jumlah);
+            }
+        });
+
+        const labels = Object.keys(catTotals);
+        const dataVals = Object.values(catTotals);
+        const colors = ['#6366f1', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
+
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels.length ? labels : ['Belum Ada Data'],
+                datasets: [{
+                    data: dataVals.length ? dataVals : [1],
+                    backgroundColor: dataVals.length ? colors : ['#e2e8f0'],
+                    borderWidth: 0, hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true, cutout: '70%',
+                plugins: { legend: { position: 'bottom', labels: {font:{family:"'Plus Jakarta Sans'"}} } }
+            }
+        });
+    }
+
+    // CRUD Ops
     document.getElementById('rForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('fBtn');
-        btn.disabled = true; btn.innerText = "Menyimpan...";
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
         
         const id = document.getElementById('fId').value;
         const payload = {
-            action: id ? 'edit' : 'add',
-            id: id || Date.now().toString(),
+            action: id ? 'edit' : 'add', id: id || Date.now().toString(),
             tanggal: document.getElementById('fTgl').value,
             nama: document.getElementById('fNama').value,
             kategori: document.getElementById('fKat').value,
@@ -264,9 +392,7 @@
         };
 
         await fetch(APPS_SCRIPT_URL, {
-            redirect: "follow",
-            method: 'POST',
-            body: JSON.stringify(payload),
+            redirect: "follow", method: 'POST', body: JSON.stringify(payload),
             headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
         
@@ -283,35 +409,29 @@
             document.getElementById('fNama').value = r.nama;
             document.getElementById('fKat').value = r.kategori;
             document.getElementById('fHarga').value = r.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            document.getElementById('mTitle').innerText = "Edit Belanjaan";
+            document.getElementById('mTitle').innerText = "Edit Pengeluaran";
             openModal('formModal');
         }
     }
 
     async function del(id) {
-        if(confirm("Hapus data ini?")) {
+        if(confirm("Hapus baris data ini permanen?")) {
             document.getElementById('loader').style.display = 'block';
             await fetch(APPS_SCRIPT_URL, {
-                redirect: "follow",
-                method: 'POST',
-                body: JSON.stringify({action:'delete', id: id}),
+                redirect: "follow", method: 'POST', body: JSON.stringify({action:'delete', id: id}),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             });
             load();
         }
     }
 
-    function exportExcel() {
-        const wb = XLSX.utils.table_to_book(document.querySelector("table"));
-        XLSX.writeFile(wb, "Belanja_Keluarga.xlsx");
-    }
-
+    // Ekspor Data
+    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector("table")), "Belanja.xlsx"); }
     function exportPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const { jsPDF } = window.jspdf; const doc = new jsPDF();
         doc.text("Rekap Belanja Keluarga", 14, 15);
         doc.autoTable({ html: 'table', startY: 22 });
-        doc.save("Belanja_Keluarga.pdf");
+        doc.save("Belanja.pdf");
     }
 
     window.onload = load;
