@@ -26,17 +26,19 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; }
         .container { max-width: 1200px; margin: 0 auto; }
         
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, var(--primary), #9333ea); padding: 25px 30px; border-radius: 20px; color: white; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4); flex-wrap: wrap; gap: 15px; }
+        /* Header Minimalis */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: linear-gradient(135deg, var(--primary), #9333ea); padding: 25px 30px; border-radius: 20px; color: white; box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4); flex-wrap: wrap; gap: 15px; }
         .header h2 { margin: 0; font-size: 24px; font-weight: 800; }
+        .btn-icon { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 10px 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-size: 16px; }
+        .btn-icon:hover { background: rgba(255,255,255,0.3); }
+
+        /* ====== BARIS AKSI KHUSUS SMARTPHONE ====== */
+        .mobile-action-bar { display: flex; gap: 15px; margin-bottom: 25px; }
+        .btn-massive-primary { flex: 2; padding: 20px; font-size: 16px; font-weight: 800; border-radius: 18px; background: var(--primary); color: white; border: none; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4); display: flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
+        .btn-massive-primary:active { transform: scale(0.98); }
+        .btn-massive-secondary { flex: 1; padding: 20px; font-size: 15px; font-weight: 700; border-radius: 18px; background: var(--card); color: var(--text); border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
         
         /* Stats & Budget */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
-        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
-        .stat-card span { font-size: 13px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
-        .stat-card div.value { font-size: 24px; font-weight: 800; margin-top: 8px; color: var(--text); }
-        
         .budget-container { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .budget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .budget-title { font-weight: 700; font-size: 14px; color: var(--text); }
@@ -45,6 +47,12 @@
         .progress-fill { height: 100%; width: 0%; transition: 0.5s ease; }
         .budget-labels { display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px; color: var(--sub); font-weight: 600;}
 
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 20px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary); }
+        .stat-card span { font-size: 13px; color: var(--sub); font-weight: 600; text-transform: uppercase; }
+        .stat-card div.value { font-size: 24px; font-weight: 800; margin-top: 8px; color: var(--text); }
+        
         .badge-status { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; margin-top: 10px; }
         .hemat { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .boros { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
@@ -56,10 +64,7 @@
         .search-box input { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--input-bg); color: var(--text); box-sizing: border-box; font-weight: 500;}
         select { padding: 10px 15px; border-radius: 10px; border: 1px solid var(--border); font-weight: 600; outline: none; cursor: pointer; background: var(--input-bg); color: var(--text); }
 
-        button { padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-light { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #4338ca; }
+        button.btn-export { padding: 10px 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; }
         
         /* Table */
         .table-wrap { background: var(--card); border-radius: 20px; border: 1px solid var(--border); overflow-x: auto; }
@@ -69,43 +74,44 @@
         tr:hover { background: rgba(0,0,0,0.02); }
         .cat-tag { padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); }
 
-        /* ====== TAMPILAN MODE FOKUS: CATAT PENGELUARAN ====== */
+        /* TAMPILAN MODE FOKUS: CATAT PENGELUARAN */
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
         .modal.active { display: flex; animation: focusIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes focusIn { from {opacity:0; transform:scale(0.95) translateY(20px);} to {opacity:1; transform:scale(1) translateY(0);} }
         
-        /* Form Card di Center yang Elegan */
-        .modal-content-focus { background: var(--card); padding: 35px; border-radius: 28px; width: 100%; max-width: 500px; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5); position: relative; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column;}
+        .modal-content-focus { background: var(--card); padding: 35px; border-radius: 28px; width: 100%; max-width: 500px; box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5); position: relative; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; max-height: 90vh; overflow-y: auto;}
         
-        /* Pintasan Cerdas (Quick Add Chips) */
         .quick-add-wrap { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; }
         .q-chip { background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: 0.2s; display: flex; align-items: center; gap: 5px;}
         .q-chip:hover { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); }
 
         .form-group { margin-bottom: 18px; position: relative; }
         .form-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: var(--sub);}
-        
         .form-group input.standard, .form-group select { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 14px; box-sizing: border-box; background: var(--input-bg); color: var(--text); outline:none; font-family: inherit; font-size: 15px; font-weight: 600; transition: 0.2s;}
         .form-group input.standard:focus, .form-group select:focus { border-color: var(--primary); }
         
-        /* Input Harga Raksasa (Banking Style) */
         .input-raksasa { width: 100%; padding: 20px; border: 2px dashed var(--border); border-radius: 20px; box-sizing: border-box; background: transparent; color: var(--primary); outline:none; font-family: inherit; font-size: 32px; font-weight: 800; text-align: center; transition: 0.2s; }
         .input-raksasa:focus { border-color: var(--primary); border-style: solid; background: rgba(79, 70, 229, 0.02); }
         .input-raksasa::placeholder { color: #cbd5e1; font-weight: 400; }
 
-        /* Live Budget Warning */
         .live-warning { text-align: center; font-size: 13px; font-weight: 700; color: var(--sub); margin-top: 10px; min-height: 20px; }
         .live-warning.aman { color: var(--success); }
         .live-warning.bahaya { color: var(--danger); }
 
-        .btn-large { width: 100%; padding: 18px; font-size: 16px; border-radius: 16px; justify-content: center; margin-top: 10px; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
+        .btn-large { width: 100%; padding: 18px; font-size: 16px; border-radius: 16px; justify-content: center; margin-top: 10px; background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
         
-        /* Suggestion Box */
         .suggestion-box { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--card); border: 2px solid var(--primary); border-top: none; border-radius: 0 0 14px 14px; z-index: 10; max-height: 200px; overflow-y: auto; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-top: -5px;}
         .suggest-item { padding: 12px 18px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; }
         .suggest-item:hover { background: rgba(79, 70, 229, 0.05); color: var(--primary); }
 
-        #loader { display: none; text-align: center; padding: 10px; color: var(--card); font-weight: 700; font-size: 14px; }
+        #loader { display: none; text-align: center; padding: 10px; color: white; font-weight: 700; font-size: 14px; }
+        
+        /* Media Query Khusus Smartphone */
+        @media (max-width: 600px) { 
+            .mobile-action-bar { flex-direction: column; gap: 10px; } 
+            .btn-massive-primary { padding: 18px; font-size: 18px; }
+            .btn-massive-secondary { padding: 15px; font-size: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -117,12 +123,19 @@
             <div style="margin-top: 5px; font-size: 14px; opacity: 0.9;">Pantau arus kas keluarga dengan cerdas.</div>
         </div>
         <div style="display:flex; gap:10px; align-items: center;">
-            <div id="loader"><i class="fas fa-sync fa-spin"></i> Mensinkronisasi...</div>
-            <button class="btn-light" onclick="toggleTheme()" title="Mode Gelap/Terang"><i class="fas fa-moon"></i></button>
-            <button class="btn-light" onclick="shareToWA()" title="Kirim Ringkasan"><i class="fab fa-whatsapp"></i> Share</button>
-            <button class="btn-light" onclick="openModal('chartModal')"><i class="fas fa-chart-line"></i> Analitik</button>
-            <button class="btn-light" style="background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.2);" onclick="openModal('formModal')"><i class="fas fa-plus"></i> Catat Baru</button>
+            <div id="loader"><i class="fas fa-sync fa-spin"></i></div>
+            <button class="btn-icon" onclick="toggleTheme()" title="Mode Gelap/Terang"><i class="fas fa-moon"></i></button>
+            <button class="btn-icon" onclick="shareToWA()" title="Kirim Ringkasan"><i class="fab fa-whatsapp"></i></button>
         </div>
+    </div>
+
+    <div class="mobile-action-bar">
+        <button class="btn-massive-primary" onclick="openModal('formModal')">
+            <i class="fas fa-plus-circle" style="font-size: 20px;"></i> Catat Pengeluaran Baru
+        </button>
+        <button class="btn-massive-secondary" onclick="openModal('chartModal')">
+            <i class="fas fa-chart-pie" style="color: var(--primary);"></i> Analitik
+        </button>
     </div>
 
     <div class="budget-container">
@@ -171,6 +184,11 @@
             <option value="9">Oktober</option><option value="10">November</option><option value="11">Desember</option>
         </select>
         <select id="selTahun" onchange="applyFilter()"><option value="semua">Semua Tahun</option></select>
+        
+        <div style="display:flex; gap:5px; margin-left:auto;">
+            <button class="btn-export" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success);" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            <button class="btn-export" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+        </div>
     </div>
 
     <div class="table-wrap">
@@ -238,7 +256,7 @@
                 <div id="liveWarning" class="live-warning">Target budget belum diatur.</div>
             </div>
             
-            <button type="submit" class="btn-primary btn-large" id="fBtn"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Kirim Data</button>
+            <button type="submit" class="btn-large" id="fBtn"><i class="fas fa-paper-plane" style="margin-right: 8px;"></i> Kirim Data</button>
         </form>
     </div>
 </div>
@@ -249,47 +267,49 @@
             <h3 style="margin:0; font-size:22px;"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Analisis Finansial</h3>
             <i class="fas fa-times" style="cursor:pointer; color:var(--sub); font-size:24px;" onclick="closeModal('chartModal')"></i>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-            <div style="background:var(--input-bg); padding:15px; border-radius:16px;"><canvas id="pieChart"></canvas></div>
-            <div style="background:var(--input-bg); padding:15px; border-radius:16px;"><canvas id="barChart"></canvas></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div style="background:var(--input-bg); padding:15px; border-radius:16px;">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--sub); text-align:center;">Komposisi Kategori (Bulan Ini)</h4>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div style="background:var(--input-bg); padding:15px; border-radius:16px;">
+                <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--sub); text-align:center;">Rekap Bulanan (Tahun Ini)</h4>
+                <canvas id="barChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const APPS_SCRIPT_URL = 'PASTE_URL_WEB_APP_ANDA_DI_SINI'; 
+    // URL SCRIPT ANDA SUDAH TERPASANG DI BAWAH INI:
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbylz6J6atHhRJbc_Juw5z8AVXhZIJi3vG-7J2SPVcTudTqrkptcskeP5zC76Ow9YRym/exec'; 
 
     let db = []; let chart2, chart3; let currentSortCol = -1, isAsc = true;
-    let totalBulanIniRealtime = 0; // Untuk menghitung live warning
+    let totalBulanIniRealtime = 0;
     document.getElementById('fTgl').valueAsDate = new Date();
 
     function toggleTheme() { document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark'; }
     const toRp = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n);
     const cleanN = (s) => parseInt(s.replace(/\./g, '')) || 0;
 
-    // Pintasan Cepat
     function quickFill(nama, kat) {
         document.getElementById('fNama').value = nama;
         document.getElementById('fKat').value = kat;
-        document.getElementById('fHarga').focus(); // Otomatis lompat ke harga
+        document.getElementById('fHarga').focus(); 
     }
 
-    // Input Harga & Live Warning
     function handlePriceInput(obj) {
-        // Format Ribuan
         let v = obj.value.replace(/[^,\d]/g, '').toString();
         let sisa = v.length % 3, r = v.substr(0, sisa), ribuan = v.substr(sisa).match(/\d{3}/gi);
         if (ribuan) r += (sisa ? '.' : '') + ribuan.join('.');
         obj.value = r;
 
-        // Kalkulasi Live Warning
         const budget = localStorage.getItem('budgetKeluarga') || 0;
         const warningDiv = document.getElementById('liveWarning');
         
         if (budget > 0) {
             const inputVal = cleanN(r);
             const simulasiSisa = budget - totalBulanIniRealtime - inputVal;
-            
             if (simulasiSisa >= 0) {
                 warningDiv.innerText = `✅ Sisa budget setelah ini: ${toRp(simulasiSisa)}`;
                 warningDiv.className = 'live-warning aman';
@@ -319,7 +339,6 @@
         } 
     }
 
-    // Auto Suggestion
     function showSuggestions(val) {
         const box = document.getElementById('suggestionBox');
         if(!val || val.length < 2) { box.style.display = 'none'; return; }
@@ -341,7 +360,7 @@
     function setBudget() { let p = prompt("Target maksimal belanja bulan ini (tanpa titik):", localStorage.getItem('budgetKeluarga') || 0); if(p && !isNaN(p)) { localStorage.setItem('budgetKeluarga', p); calcDashboard(); } }
 
     function updateBudgetBar(totalBulanIni) {
-        totalBulanIniRealtime = totalBulanIni; // Simpan ke global untuk Live Warning
+        totalBulanIniRealtime = totalBulanIni; 
         const budget = localStorage.getItem('budgetKeluarga') || 0;
         const fill = document.getElementById('budgetFill'), lblT = document.getElementById('lblTerpakai'), lblS = document.getElementById('lblSisa');
         if(budget == 0) { fill.style.width = '0%'; lblT.innerText = `Terpakai: ${toRp(totalBulanIni)}`; lblS.innerText = "Target belum diatur"; lblS.style.color = "var(--sub)"; return; }
@@ -353,7 +372,7 @@
     }
 
     async function load() {
-        document.getElementById('loader').style.display = 'block';
+        document.getElementById('loader').style.display = 'inline-block';
         try {
             const r = await fetch(APPS_SCRIPT_URL); db = await r.json();
             const thns = [...new Set(db.map(x => new Date(x.tanggal).getFullYear()))].sort((a,b)=>b-a);
@@ -379,8 +398,8 @@
                 <td data-val="${r.kategori}"><span class="cat-tag">${r.kategori}</span></td>
                 <td data-val="${r.jumlah}" style="font-weight:800; color:var(--primary)">${toRp(r.jumlah)}</td>
                 <td style="text-align:center">
-                    <button style="padding:8px; background:rgba(79, 70, 229, 0.1); color:var(--primary); border-radius:8px;" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
-                    <button style="padding:8px; background:rgba(239, 68, 68, 0.1); color:var(--danger); border-radius:8px; margin-left:5px;" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
+                    <button style="padding:8px; border:none; background:rgba(79, 70, 229, 0.1); color:var(--primary); border-radius:8px; cursor:pointer;" onclick="edit('${r.id}')"><i class="fas fa-edit"></i></button>
+                    <button style="padding:8px; border:none; background:rgba(239, 68, 68, 0.1); color:var(--danger); border-radius:8px; margin-left:5px; cursor:pointer;" onclick="del('${r.id}')"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>`;
         });
@@ -428,7 +447,7 @@
         db.forEach(r => { const d = new Date(r.tanggal), v = Number(r.jumlah); if(d.getFullYear() === curY) { monthlyData[d.getMonth()] += v; if(d.getMonth() === curM) { catTotals[r.kategori] = (catTotals[r.kategori] || 0) + v; } } });
 
         const cl = Object.keys(catTotals), cv = Object.values(catTotals);
-        if(chart2) chart2.destroy(); chart2 = new Chart(document.getElementById('pieChart').getContext('2d'), { type: 'doughnut', data: { labels: cl.length?cl:['Kosong'], datasets: [{ data: cv.length?cv:[1], backgroundColor: ['#4f46e5', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'], borderWidth: 0 }] }, options: { cutout:'65%', plugins:{legend:{position:'right', labels:{boxWidth:12, font:{size:10}}}} } });
+        if(chart2) chart2.destroy(); chart2 = new Chart(document.getElementById('pieChart').getContext('2d'), { type: 'doughnut', data: { labels: cl.length?cl:['Kosong'], datasets: [{ data: cv.length?cv:[1], backgroundColor: ['#4f46e5', '#ec4899', '#14b8a6', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'], borderWidth: 0 }] }, options: { cutout:'65%', plugins:{legend:{position:'bottom', labels:{boxWidth:12, font:{size:11}}}} } });
         if(chart3) chart3.destroy(); chart3 = new Chart(document.getElementById('barChart').getContext('2d'), { type: 'bar', data: { labels: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'], datasets: [{ data: monthlyData, backgroundColor: '#818cf8', borderRadius: 6 }] }, options: { plugins:{legend:{display:false}} } });
     }
 
@@ -441,8 +460,11 @@
     });
 
     function edit(id) { const r = db.find(x => x.id == id); if(r) { document.getElementById('fId').value = r.id; document.getElementById('fTgl').value = new Date(r.tanggal).toISOString().split('T')[0]; document.getElementById('fNama').value = r.nama; document.getElementById('fKat').value = r.kategori; document.getElementById('fHarga').value = r.jumlah.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); document.getElementById('mTitle').innerText = "Edit Transaksi"; openModal('formModal'); } }
-    async function del(id) { if(confirm("Hapus baris data ini permanen?")) { document.getElementById('loader').style.display = 'block'; await fetch(APPS_SCRIPT_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({action:'delete', id: id}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }); load(); } }
+    async function del(id) { if(confirm("Hapus baris data ini permanen?")) { document.getElementById('loader').style.display = 'inline-block'; await fetch(APPS_SCRIPT_URL, { redirect: "follow", method: 'POST', body: JSON.stringify({action:'delete', id: id}), headers: { 'Content-Type': 'text/plain;charset=utf-8' } }); load(); } }
     
+    function exportExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.querySelector("table")), "Rekap_Keuangan_Keluarga.xlsx"); }
+    function exportPDF() { const { jsPDF } = window.jspdf; const doc = new jsPDF(); doc.text("Rekap Keuangan Keluarga", 14, 15); doc.autoTable({ html: '#dataTable', startY: 22 }); doc.save("Rekap_Keuangan.pdf"); }
+
     window.onload = load;
 </script>
 </body>
